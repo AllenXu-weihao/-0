@@ -1,0 +1,16 @@
+{
+  "status": "static checks only; MATLAB unexecuted",
+  "matlab_files": 17,
+  "controlled_edges": 46,
+  "checks": [
+    "wrapper targets exist",
+    "function/file names match",
+    "original source and package SHA256 unchanged"
+  ],
+  "not_checked": [
+    "MATLAB parser/runtime",
+    "golden numerical equivalence",
+    "BER accuracy",
+    "HDL equivalence"
+  ]
+}

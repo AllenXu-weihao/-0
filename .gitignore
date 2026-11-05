@@ -1,0 +1,7 @@
+experiments/results/
+audit_results/
+*.asv
+*.m~
+slprj/
+*.slxc
+.DS_Store

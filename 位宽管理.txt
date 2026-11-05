@@ -1,0 +1,337 @@
+﻿MIMO — FPGA 全变量位宽管理（2026-10-30）
+适用对象：Vfinal当前部署模型，权重SHA256=8c0cbcfe2e36eede8cba363187a7cf38afceec43681730127f52881997ca8851
+S W.F表示总W位（含符号）且F位小数；U W.F表示无符号，总W位。
+本版是混合精度实施规格：矩阵路径定点；含倒数/log/exp/矩阵求解的外围先明确采用IEEE754 FP32。
+FP32并不表示零成本，也不是已经证明最省功耗。未实现的非线性RTL/LUT不能冒充已验收。
+已经验证：ROM重建、矩阵整数MAC、舍入及饱和边界。其余字段是实施规格；当前浮点性能复核与矩阵边界定点复核另见reports。
+浮点高斯输入无理论有限上界，须按实际SNR/输入尺度复核饱和；本表不承诺任意输入绝不溢出。
+当前只部署该任务的推断和前端；主机数据生成、发送真值、标签、损失/梯度、BER/NMSE统计不属于FPGA推断变量。
+推断状态定时停止后保持；不能把显示保持段算成额外迭代。
+
+
+01. valid, ready, enable, start, done, reset, support_mask, sign_bit
+  格式: U1.0
+  用途: 握手、掩码、符号
+  规则: 每路独立；禁止用全零值表示无效数据
+  状态: 设计规格，尚未完成全外围定点验证
+
+02. frame_counter, saturation_counter, invalid_counter
+  格式: U64.0
+  用途: 帧数与溢出计数
+  规则: 达到上限饱和并置overflow；测试BER/NMSE累计为主机FP64，不进入推断
+  状态: 设计规格，尚未完成全外围定点验证
+
+03. coefficient_index
+  格式: U4.0
+  用途: 量化系数ROM索引
+  规则: 0..15；独立support_mask表示零；实际有效级数见profile
+  状态: ROM索引重建已验证
+
+04. coefficient, A2/A13/A5 非零值
+  格式: S18.14
+  用途: 矩阵系数
+  规则: [-8,8-2^-14]；最近舍入，半值远离零
+  状态: ROM及矩阵接口已验证
+
+05. matrix_input, matrix_output, beta, local, alpha, lambda_at_array, posterior_at_array
+  格式: S24.12
+  用途: 阵列消息接口
+  规则: [-2048,2048-2^-12]；所有饱和计数；感知由24位加宽32位，避免已发现的饱和；不改变算法
+  状态: 定点MAC已验证；大样本动态范围见性能复核
+
+06. product=x*w
+  格式: S42.26
+  用途: 单项乘积
+  规则: 24+18位，12+14小数位；无提前截断
+  状态: 整数MAC已验证
+
+07. A2_accumulator
+  格式: S45.26
+  用途: 扇入最大5
+  规则: 乘积宽度+ceil(log2(max_fanin))；输出右移14位，再舍入饱和
+  状态: 整数MAC已验证
+
+08. A2_row
+  格式: U8.0
+  用途: 行地址
+  规则: 硬件0基索引 0..215；MATLAB1基仅在接口转换；计满值另需位宽
+  状态: 设计规格，尚未完成全外围定点验证
+
+09. A2_column
+  格式: U8.0
+  用途: 列地址
+  规则: 硬件0基索引 0..179；MATLAB1基仅在接口转换；计满值另需位宽
+  状态: 设计规格，尚未完成全外围定点验证
+
+10. A2_rom_address
+  格式: U16.0
+  用途: 行优先ROM地址 row*columns+column
+  规则: 硬件0基索引 0..38879；MATLAB1基仅在接口转换；计满值另需位宽
+  状态: 设计规格，尚未完成全外围定点验证
+
+11. A2_fanin_count
+  格式: U3.0
+  用途: 已累加项数，包含完成状态
+  规则: 硬件0基索引 0..5；MATLAB1基仅在接口转换；计满值另需位宽
+  状态: 设计规格，尚未完成全外围定点验证
+
+12. A13_accumulator
+  格式: S45.26
+  用途: 扇入最大6
+  规则: 乘积宽度+ceil(log2(max_fanin))；输出右移14位，再舍入饱和
+  状态: 整数MAC已验证
+
+13. A13_row
+  格式: U9.0
+  用途: 行地址
+  规则: 硬件0基索引 0..467；MATLAB1基仅在接口转换；计满值另需位宽
+  状态: 设计规格，尚未完成全外围定点验证
+
+14. A13_column
+  格式: U8.0
+  用途: 列地址
+  规则: 硬件0基索引 0..179；MATLAB1基仅在接口转换；计满值另需位宽
+  状态: 设计规格，尚未完成全外围定点验证
+
+15. A13_rom_address
+  格式: U17.0
+  用途: 行优先ROM地址 row*columns+column
+  规则: 硬件0基索引 0..84239；MATLAB1基仅在接口转换；计满值另需位宽
+  状态: 设计规格，尚未完成全外围定点验证
+
+16. A13_fanin_count
+  格式: U3.0
+  用途: 已累加项数，包含完成状态
+  规则: 硬件0基索引 0..6；MATLAB1基仅在接口转换；计满值另需位宽
+  状态: 设计规格，尚未完成全外围定点验证
+
+17. A5_accumulator
+  格式: S45.26
+  用途: 扇入最大6
+  规则: 乘积宽度+ceil(log2(max_fanin))；输出右移14位，再舍入饱和
+  状态: 整数MAC已验证
+
+18. A5_row
+  格式: U8.0
+  用途: 行地址
+  规则: 硬件0基索引 0..215；MATLAB1基仅在接口转换；计满值另需位宽
+  状态: 设计规格，尚未完成全外围定点验证
+
+19. A5_column
+  格式: U6.0
+  用途: 列地址
+  规则: 硬件0基索引 0..35；MATLAB1基仅在接口转换；计满值另需位宽
+  状态: 设计规格，尚未完成全外围定点验证
+
+20. A5_rom_address
+  格式: U13.0
+  用途: 行优先ROM地址 row*columns+column
+  规则: 硬件0基索引 0..7775；MATLAB1基仅在接口转换；计满值另需位宽
+  状态: 设计规格，尚未完成全外围定点验证
+
+21. A5_fanin_count
+  格式: U3.0
+  用途: 已累加项数，包含完成状态
+  规则: 硬件0基索引 0..6；MATLAB1基仅在接口转换；计满值另需位宽
+  状态: 设计规格，尚未完成全外围定点验证
+
+22. requant_sign, requant_magnitude, rounding_increment
+  格式: ACC_W+1 / U1
+  用途: 舍入中间值
+  规则: 绝对值在ACC_W+1位计算，避免最小负数溢出；比较后饱和；不得直接截低位
+  状态: 边界向量已验证
+
+23. normalize_peak, normalized_score, alphaSorted, betaRaw, betaSorted, score_difference
+  格式: S32.12
+  用途: 外围归一化/比较/反排序
+  规则: 减法先33位；转回阵列24位时计数饱和；排序相同值保持原始索引先后
+  状态: 设计规格，尚未完成全外围定点验证
+
+24. fixed_rate, fixed_gain, temperature, scale_constants
+  格式: S18.16
+  用途: 固定比例常数
+  规则: 范围[-2,2)；超过该范围的常数改S24.12；系数由host量化后写ROM；不可训练在线改变
+  状态: 设计规格，尚未完成全外围定点验证
+
+25. feedback_product, feedback_sum
+  格式: S42.28 / S43.28
+  用途: (1-rate)*beta + rate*raw
+  规则: 量化rate后用整数65536-rate构造补系数，保证两项之和精确为1；最终舍入到S24.12；感知当前不实例化阻尼反馈
+  状态: 设计规格，尚未完成全外围定点验证
+
+26. yReal,yImag,Hreal,Himag,candidateReal,candidateImag,pilotReal,pilotImag
+  格式: S24.12 each
+  用途: 复数输入和候选
+  规则: 实虚部分别24位；波形/信道不保证理论有限，必须测试接收缩放范围；不根据真值缩放
+  状态: 设计规格，尚未完成全外围定点验证
+
+27. prob, posterior_probability, exp_shifted
+  格式: U24.23
+  用途: 归一化概率/指数输出
+  规则: 能精确表示1；exp输入先减最大值；概率下溢记为0但零概率log需valid或log-domain处理
+  状态: 设计规格，尚未完成全外围定点验证
+
+28. sum_exp
+  格式: U28.23
+  用途: 指数求和
+  规则: 至少一个exp(0)=1，分母非零；L=9
+  状态: 设计规格，尚未完成全外围定点验证
+
+29. reciprocal_sum, reciprocal_variance, log_normalizer, mix_log_a, mix_log_b, mix_peak
+  格式: IEEE754 binary32
+  用途: 倒数、log、混合似然外围初始实现规格
+  规则: 1+8+23位；roundTiesToEven；拒绝NaN/Inf；此处保留FP32动态范围，尚非已实现定点LUT
+  状态: 设计规格，尚未完成全外围定点验证
+
+30. noiseVar, impulseVar, effective_variance, nv, iv, extra, varr, weighted
+  格式: IEEE754 binary32
+  用途: 噪声与有效方差
+  规则: 严格>0的分母；不得靠新增方差下限修复性能；与原内核相同规则
+  状态: 设计规格，尚未完成全外围定点验证
+
+31. mu, cs, c, residual, complex_matvec
+  格式: IEEE754 binary32 ×2
+  用途: 均值、复数残差、乘加
+  规则: 每个实虚分量32位；乘法与加法顺序须固定；FP32舍入仍需对照测试
+  状态: 设计规格，尚未完成全外围定点验证
+
+32. variance_product, squared_residual, likelihood_lambda, ai_logsumexp
+  格式: IEEE754 binary32
+  用途: 平方、混合高斯、logsumexp
+  规则: 先做稳定减峰值计算，再在阵列输入边界转S24.12；不能将log/exp视为免费操作
+  状态: 设计规格，尚未完成全外围定点验证
+
+33. candidate_prior, local_prior, prior_scale
+  格式: IEEE754 binary32 -> S24.12
+  用途: 本地先验
+  规则: 已准备输入只转换一次；原始/融合/学习共用相同前端
+  状态: 设计规格，尚未完成全外围定点验证
+
+34. frontend_gram, frontend_cov, frontend_inverse, center, variance, pool, prior, candidate_score
+  格式: IEEE754 binary32 (complex ×2)
+  用途: 候选前端4×4线性估计及候选排序
+  规则: 矩阵分解/倒数保留FP32；尚无硬件误差验收；失败上报，不暗中改变正则化
+  状态: 设计规格，尚未完成全外围定点验证
+
+35. H_power, correlation_gram, rho, e, pair_cost
+  格式: IEEE754 binary32
+  用途: MIMO相关性分组；Channel不实例化
+  规则: MIMO每帧一次；不额外每轮重新分组；原有分母1e-12保留
+  状态: 设计规格，尚未完成全外围定点验证
+
+36. candidate_rank
+  格式: U4.0
+  用途: 局部候选序号
+  规则: 硬件0基索引 0..8；MATLAB1基仅在接口转换；计满值另需位宽
+  状态: 设计规格，尚未完成全外围定点验证
+
+37. sort_global_index
+  格式: U8.0
+  用途: 排序全局索引
+  规则: 硬件0基索引 0..179；MATLAB1基仅在接口转换；计满值另需位宽
+  状态: 设计规格，尚未完成全外围定点验证
+
+38. port_id
+  格式: U5.0
+  用途: 端口
+  规则: 硬件0基索引 0..19；MATLAB1基仅在接口转换；计满值另需位宽
+  状态: 设计规格，尚未完成全外围定点验证
+
+39. variable_id
+  格式: U2.0
+  用途: 变量
+  规则: 硬件0基索引 0..3；MATLAB1基仅在接口转换；计满值另需位宽
+  状态: 设计规格，尚未完成全外围定点验证
+
+40. receiver_id
+  格式: U3.0
+  用途: 接收/观测
+  规则: 硬件0基索引 0..7；MATLAB1基仅在接口转换；计满值另需位宽
+  状态: 设计规格，尚未完成全外围定点验证
+
+41. iteration_count
+  格式: U2.0
+  用途: 包含停止完成计数
+  规则: 硬件0基索引 0..3；MATLAB1基仅在接口转换；计满值另需位宽
+  状态: 设计规格，尚未完成全外围定点验证
+
+42. candidate_pool_index
+  格式: U6.0
+  用途: 候选池索引
+  规则: 硬件0基索引 0..63；MATLAB1基仅在接口转换；计满值另需位宽
+  状态: 设计规格，尚未完成全外围定点验证
+
+43. group_id
+  格式: U3.0
+  用途: 组
+  规则: 硬件0基索引 0..4；MATLAB1基仅在接口转换；计满值另需位宽
+  状态: 设计规格，尚未完成全外围定点验证
+
+44. pair_search_index
+  格式: U5.0
+  用途: 相关性组合枚举
+  规则: 硬件0基索引 0..20；MATLAB1基仅在接口转换；计满值另需位宽
+  状态: 设计规格，尚未完成全外围定点验证
+
+45. candidateBit, decided_bit
+  格式: U1.0
+  用途: 64QAM每符号6个映射位
+  规则: 候选映射ROM来自星座，不是发送真值
+  状态: 设计规格，尚未完成全外围定点验证
+
+46. bit_max0, bit_max1, bit_llr
+  格式: S32.12 -> S24.12
+  用途: 6位max-log判决
+  规则: 先33位相减，按原内核限幅±20；每帧24比特
+  状态: 设计规格，尚未完成全外围定点验证
+
+47. temporary add/sub
+  格式: max(Wa,Wb)+1；F=max(Fa,Fb)
+  用途: 未命名加减临时量统一规则
+  规则: 先对齐小数位并扩位，完成运算后才按目的格式舍入；绝不隐式截断
+  状态: 设计规格，尚未完成全外围定点验证
+
+48. temporary multiply
+  格式: Wa+Wb；F=Fa+Fb
+  用途: 未命名定点乘积统一规则
+  规则: 复乘实部/虚部各两项乘积相加再加1位；累加N项额外ceil(log2(N))位
+  状态: 设计规格，尚未完成全外围定点验证
+
+49. FP32 intermediate
+  格式: IEEE754 binary32: sign1 exp8 fraction23
+  用途: FP32外围所有未命名算术临时量
+  规则: roundTiesToEven；禁止fast-math重排；FMA与分离乘加不能混用而不重测；检查NaN/Inf
+  状态: 设计规格，尚未完成全外围定点验证
+
+50. ROM parameters / topology / config
+  格式: 见本表对应数据或索引格式
+  用途: 配置固化
+  规则: 字符串、struct/cell容器、Python对象、离线训练梯度不部署；展开为对应RAM/ROM及地址
+  状态: 设计规格，尚未完成全外围定点验证
+
+51. inputA2, inputA13, inputA5, localRow, physicalAlpha, physicalScores, physicalBelief
+  格式: S24.12
+  用途: 源代码同义矩阵总线
+  规则: 与matrix_input/output完全相同；填充槽写精确0，不额外保存浮点副本
+  状态: 设计规格，尚未完成全外围定点验证
+
+52. stateAddress, variableAddress, candidateAddress, portVariable, portFactor
+  格式: 对应ROM索引的Uceil(log2(N)).0
+  用途: 离线展开的地址表
+  规则: 每张表按其目的RAM的实际深度N取位宽，禁止用MATLAB double地址上硬件；范围包含0..N-1
+  状态: 设计规格，尚未完成全外围定点验证
+
+53. trace, messageChange, audit, truth, noiseCube, losses, optimizer, BER, NMSE
+  格式: HOST_ONLY
+  用途: 诊断/仿真/训练变量
+  规则: 不实例化在线推断硬件；overflow/saturation监测计数器例外，已单列U64
+  状态: 设计规格，尚未完成全外围定点验证
+
+
+独立MATLAB交付接口补充（2026-11-02）
+入口 MIMO.m；内部pkg_*及模块__函数名均对应原来的同名变量规格。局部函数已合并到同一文件，不依赖common。
+input：在线观测/LLR/已知信道；profile、config、module：配置期ROM参数；pack.example与expected*仅为主机测试，不部署FPGA。
+result.trajectory：调试用完整迭代输出；硬件仅需当前/下一轮缓冲及最后读出。audit/goldenMaxError为测试诊断，硬件仅保留饱和/异常计数。
+mode为主机选择枚举，硬件实现时固化数据格式；默认float是参考语义，fixed_mvm只量化矩阵接口，外围的FP32/定点实施规格不等于已完成全算术量化。
+新增明确的raw frontend接口：y实虚部各S24.12；MIMO.H各S24.12；noiseVar/impulseExtraVar为FP32正数；center/cov/variance/pool/score及log混合先按FP32实现。
+MIMO星座索引U6，单符号bitTable六个U1，coverage counts需U4表示0..9；confidence循环计数U3表示0..6；replacePos使用U4并另设valid。
