@@ -1,0 +1,4 @@
+关 trace、不量化，相对 MIMO 浮点的最大 LLR 差 0。
+开 trace、不量化，相对 MIMO 浮点的最大 LLR 差 0。
+开 trace 与关 trace 的不量化 LLR 最大差 0。
+F=10 开 trace 与关 trace 的 LLR 最大差 0，硬判不同帧数 0。

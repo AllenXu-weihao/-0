@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FPGA 位宽蓝图 · 数据流</title>
+<style>
+  :root { --ink:#1c1b19; --muted:#5e5a54; --line:#ddd8cf; --bg:#f6f5f2; --card:#fff; --accent:#1d4e89; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 "Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; }
+  main { max-width:1040px; margin:0 auto; padding:28px 20px 72px; }
+  h1 { font-size:26px; font-weight:600; margin:0 0 8px; }
+  h2 { font-size:18px; margin:28px 0 10px; }
+  p { margin:0 0 10px; }
+  .muted { color:var(--muted); }
+  .stats { display:flex; flex-wrap:wrap; gap:22px; margin:14px 0 8px; }
+  .stats b { display:block; font-size:28px; font-weight:600; }
+  .stats span { color:var(--muted); font-size:13px; }
+  .flow { display:grid; grid-template-columns:1fr; gap:0; margin-top:18px; }
+  .stage { background:var(--card); border:1px solid var(--line); padding:12px 14px; }
+  .stage h3 { margin:0 0 4px; font-size:16px; }
+  .w { color:var(--accent); font-weight:600; }
+  ul { margin:6px 0 0; padding-left:18px; }
+  li { margin:2px 0; }
+  .arrow { text-align:center; color:var(--muted); padding:6px 0; font-size:13px; }
+  .loop { border-left:3px solid var(--accent); padding:8px 12px; margin:8px 0; background:#eef3f8; }
+  table { width:100%; border-collapse:collapse; background:var(--card); font-size:14px; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--muted); font-size:12px; font-weight:600; }
+  td.num, th.num { text-align:right; }
+</style>
+</head>
+<body>
+<main>
+  <h1>位宽已经定下来的数据流</h1>
+  <p>一段计算过程共用一个有符号格式。段内每个被插桩的数都用这个格式，其余时间从双精度出发。80 帧、种子 1105。判据是对发射比特的误码，不把饱和或与 float 的硬判差当作门槛。</p>
+  <div class="stats">
+    <div><b>243</b><span>蓝图整机误码 / 1920 bit</span></div>
+    <div><b>256</b><span>双精度误码</span></div>
+    <div><b>275</b><span>六段最窄档直接拼接</span></div>
+    <div><b>177 / 61 / 5 / 0</b><span>蓝图在 0 / 10 / 20 / 30 dB</span></div>
+  </div>
+  <p class="muted">双精度在这四档是 190 / 61 / 5 / 0。蓝图少的 13 bit 都在 0 dB。10 dB、20 dB、30 dB 的误码个数没有增加。</p>
+
+  <div class="flow">
+    <section class="stage">
+      <h3>输入 <span class="w">y、H、噪声方差、脉冲方差</span></h3>
+      <p>8 接收 × 4 发射，64-QAM，24 bit/帧。H 同时作为信道和接收端已知信道。</p>
+    </section>
+    <div class="arrow">锁存后进入 F</div>
+    <section class="stage">
+      <h3>F 候选准备 <span class="w">S14.10</span></h3>
+      <p>本段单独误码 252（186/61/5/0）。再窄一档方差不再为正，实验中断。</p>
+      <ul>
+        <li>input_y、input_H、input_nv、input_iv</li>
+        <li>Gram、右端、中心、协方差、评分方差、64 点分数、local</li>
+        <li>4×4 求解的分解和除法仍是双精度。蓝图定的是送进去和取出来的数。</li>
+      </ul>
+    </section>
+    <div class="arrow">候选、标签、local 活过整帧</div>
+    <div class="loop">
+      <p>下面 I1 → I2 → I3 → I4 重复 3 轮。I3 写出的 β 回到下一轮 I1。非末轮的 z 不回到计算。</p>
+      <section class="stage">
+        <h3>I1 先验与排序 <span class="w">S10.6</span></h3>
+        <p>本段单独误码 247（181/61/5/0）。S12.6 也是 247，取更窄的 S10.6。</p>
+        <ul>
+          <li>A2 的输入、权重、乘积、累加、输出，以及减峰后的 α</li>
+          <li>20 口 × 9 候选。排序索引不量化。</li>
+        </ul>
+      </section>
+      <div class="arrow">排序后的 α</div>
+      <section class="stage">
+        <h3>I2 统计与证据 <span class="w">S10.6</span></h3>
+        <p>单独看 S8.4 误码 243，但 20 dB 从 5 增到 7。S10.6 单独是 245，20 dB 仍是 5。拼进整机时用 S10.6。</p>
+        <ul>
+          <li>exp、指数和、概率、均值、方差、残差、加权能量</li>
+          <li>mix 的两个对数分量和输出，以及 λ、ai</li>
+        </ul>
+      </section>
+      <div class="arrow">λ 与 ai 进入 A13</div>
+      <section class="stage">
+        <h3>I3 消息与阻尼 <span class="w">S16.10</span></h3>
+        <p>本段单独误码 252（186/61/5/0）。再窄误码升到 257 以上，20 dB 也开始变差。</p>
+        <ul>
+          <li>A13 的输入、权重、乘积、累加、输出</li>
+          <li>raw、rate、旧支路、新支路、阻尼和、写回的 β</li>
+        </ul>
+      </section>
+      <div class="arrow">新 β 进入 A5，并作为下一轮 I1 的旧 β</div>
+      <section class="stage">
+        <h3>I4 后验 <span class="w">S16.10</span></h3>
+        <p>本段单独误码 256，与双精度相同，是这种误码水平下最窄的一档。</p>
+        <ul>
+          <li>A5 的输入、权重、乘积、累加、输出 z</li>
+          <li>36 个数。只有第 3 轮的 z 往下读。</li>
+        </ul>
+      </section>
+    </div>
+    <div class="arrow">末轮 z</div>
+    <section class="stage">
+      <h3>R 软比特 <span class="w">S8.4</span></h3>
+      <p>本段单独误码 253（187/61/5/0）。S8.4 能表示的最大绝对值是 7.9375，算法里先夹到 ±20 的 LLR 会再被夹到这个端点。把 R 放宽到 S16.10 再和其余蓝图档拼接，整机误码升到 280。</p>
+      <ul>
+        <li>24 个 LLR。两侧最大相减后夹到 ±20，硬判是 LLR &lt; 0。</li>
+      </ul>
+    </section>
+  </div>
+
+  <h2>整机拼接</h2>
+  <table>
+    <thead>
+      <tr><th>组合</th><th>F</th><th>I1</th><th>I2</th><th>I3</th><th>I4</th><th>R</th><th class="num">误码</th><th>0/10/20/30 dB</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>双精度</td><td>double</td><td>double</td><td>double</td><td>double</td><td>double</td><td>double</td><td class="num">256</td><td>190/61/5/0</td></tr>
+      <tr><td>六段最窄直接拼接</td><td>S14.10</td><td>S10.6</td><td>S8.4</td><td>S16.10</td><td>S16.10</td><td>S8.4</td><td class="num">275</td><td>201/67/7/0</td></tr>
+      <tr><td>蓝图</td><td>S14.10</td><td>S10.6</td><td>S10.6</td><td>S16.10</td><td>S16.10</td><td>S8.4</td><td class="num">243</td><td>177/61/5/0</td></tr>
+      <tr><td>改动较小的对照</td><td>S24.14</td><td>S20.12</td><td>S16.12</td><td>S16.10</td><td>S16.10</td><td>S16.10</td><td class="num">247</td><td>181/61/5/0</td></tr>
+    </tbody>
+  </table>
+  <p class="muted">蓝图这一行与 float 的硬判差是 103 bit。误码少，是因为 0 dB 上有些判决更接近发射比特，不是因为算法和双精度逐比特相同。对照那一行硬判差只有 13 bit，误码 247，高于蓝图。</p>
+  <p class="muted">乘积和累加是双精度算完再按这个格式量化，按列的非零顺序累加。图上的位宽是每个数的寄存格式。整数乘加是否装得进这个位宽，还要另做逐步溢出检查。这 80 帧不是卫星信道，也不是能耗测量。</p>
+</main>
+</body>
+</html>

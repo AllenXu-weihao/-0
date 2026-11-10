@@ -1,0 +1,211 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1620" viewBox="0 0 900 1620">
+  <title>单边扫宽；同种子、同输入、按背景 SNR 配对</title>
+  <rect width="900" height="1620" fill="white" />
+  <g font-family="Microsoft YaHei, sans-serif" fill="#19383d">
+    <text x="32" y="39" font-size="26" text-anchor="start">alpha 单边扫宽 · 相同输入与 MIMO(float) 比较</text>
+    <text x="32" y="69" font-size="14" text-anchor="start">运行 E2_alpha_s1105_a01_20261109_151630_tp000a4ea5_7e93_49b9_93c9_dae10b3a38fb  ·  种子 1105</text>
+    <text x="32" y="96" font-size="15" text-anchor="start">横轴各档为实际 (W,F)；同一指标在所有 SNR 使用相同纵轴。饱和按次数统计；首次 idx 变化未采集。</text>
+    <text x="32" y="135" font-size="19" text-anchor="start">背景 SNR 0 dB   /   每档 20 帧，480 bit</text>
+    <text x="32" y="171" font-size="15" text-anchor="start">ΔBER（百分点）</text>
+    <path d="M110 186.0H870" stroke="#a7b6b3" />
+    <text x="93" y="240.0" font-size="13" text-anchor="end">-1.667</text>
+    <text x="93" y="190.0" font-size="13" text-anchor="end">0</text>
+    <circle cx="125.0" cy="217.25" r="3.7" fill="#ae532e" />
+    <text x="125.0" y="211.25" font-size="13" text-anchor="middle">-1.042</text>
+    <path d="M125.0 217.25L368.33333333333337 236.0" stroke="#ae532e" fill="none" />
+    <circle cx="368.33333333333337" cy="236.0" r="3.7" fill="#ae532e" />
+    <text x="368.33333333333337" y="230.0" font-size="13" text-anchor="middle">-1.667</text>
+    <path d="M368.33333333333337 236.0L611.6666666666667 192.25" stroke="#ae532e" fill="none" />
+    <circle cx="611.6666666666667" cy="192.25" r="3.7" fill="#ae532e" />
+    <text x="611.6666666666667" y="186.25" font-size="13" text-anchor="middle">-0.2083</text>
+    <path d="M611.6666666666667 192.25L855.0 186.0" stroke="#ae532e" fill="none" />
+    <circle cx="855.0" cy="186.0" r="3.7" fill="#ae532e" />
+    <text x="855.0" y="180.0" font-size="13" text-anchor="middle">0</text>
+    <text x="32" y="270" font-size="15" text-anchor="start">相对浮点的最大 |ΔLLR|</text>
+    <path d="M110 335.0H870" stroke="#a7b6b3" />
+    <text x="93" y="339.0" font-size="13" text-anchor="end">0</text>
+    <text x="93" y="289.0" font-size="13" text-anchor="end">0.6575</text>
+    <circle cx="125.0" cy="285.2941449983463" r="3.7" fill="#426d9f" />
+    <text x="125.0" y="279.2941449983463" font-size="13" text-anchor="middle">0.6536</text>
+    <path d="M125.0 285.2941449983463L368.33333333333337 285.0" stroke="#426d9f" fill="none" />
+    <circle cx="368.33333333333337" cy="285.0" r="3.7" fill="#426d9f" />
+    <text x="368.33333333333337" y="279.0" font-size="13" text-anchor="middle">0.6575</text>
+    <path d="M368.33333333333337 285.0L611.6666666666667 297.0986429564209" stroke="#426d9f" fill="none" />
+    <circle cx="611.6666666666667" cy="297.0986429564209" r="3.7" fill="#426d9f" />
+    <text x="611.6666666666667" y="291.0986429564209" font-size="13" text-anchor="middle">0.4984</text>
+    <path d="M611.6666666666667 297.0986429564209L855.0 327.29763314204115" stroke="#426d9f" fill="none" />
+    <circle cx="855.0" cy="327.29763314204115" r="3.7" fill="#426d9f" />
+    <text x="855.0" y="321.29763314204115" font-size="13" text-anchor="middle">0.1013</text>
+    <text x="32" y="369" font-size="15" text-anchor="start">该边饱和次数</text>
+    <path d="M110 434.0H870" stroke="#a7b6b3" />
+    <text x="93" y="438.0" font-size="13" text-anchor="end">0</text>
+    <text x="93" y="388.0" font-size="13" text-anchor="end">1</text>
+    <circle cx="125.0" cy="434.0" r="3.7" fill="#267366" />
+    <text x="125.0" y="428.0" font-size="13" text-anchor="middle">0</text>
+    <text x="125.0" y="458" font-size="14" text-anchor="middle">(15,6)</text>
+    <path d="M125.0 434.0L368.33333333333337 434.0" stroke="#267366" fill="none" />
+    <circle cx="368.33333333333337" cy="434.0" r="3.7" fill="#267366" />
+    <text x="368.33333333333337" y="428.0" font-size="13" text-anchor="middle">0</text>
+    <text x="368.33333333333337" y="458" font-size="14" text-anchor="middle">(17,8)</text>
+    <path d="M368.33333333333337 434.0L611.6666666666667 434.0" stroke="#267366" fill="none" />
+    <circle cx="611.6666666666667" cy="434.0" r="3.7" fill="#267366" />
+    <text x="611.6666666666667" y="428.0" font-size="13" text-anchor="middle">0</text>
+    <text x="611.6666666666667" y="458" font-size="14" text-anchor="middle">(19,10)</text>
+    <path d="M611.6666666666667 434.0L855.0 434.0" stroke="#267366" fill="none" />
+    <circle cx="855.0" cy="434.0" r="3.7" fill="#267366" />
+    <text x="855.0" y="428.0" font-size="13" text-anchor="middle">0</text>
+    <text x="855.0" y="458" font-size="14" text-anchor="middle">(21,12)</text>
+    <text x="32" y="500" font-size="19" text-anchor="start">背景 SNR 10 dB   /   每档 20 帧，480 bit</text>
+    <text x="32" y="536" font-size="15" text-anchor="start">ΔBER（百分点）</text>
+    <path d="M110 551.0H870" stroke="#a7b6b3" />
+    <text x="93" y="605.0" font-size="13" text-anchor="end">-1.667</text>
+    <text x="93" y="555.0" font-size="13" text-anchor="end">0</text>
+    <circle cx="125.0" cy="551.0" r="3.7" fill="#ae532e" />
+    <text x="125.0" y="545.0" font-size="13" text-anchor="middle">0</text>
+    <path d="M125.0 551.0L368.33333333333337 551.0" stroke="#ae532e" fill="none" />
+    <circle cx="368.33333333333337" cy="551.0" r="3.7" fill="#ae532e" />
+    <text x="368.33333333333337" y="545.0" font-size="13" text-anchor="middle">0</text>
+    <path d="M368.33333333333337 551.0L611.6666666666667 551.0" stroke="#ae532e" fill="none" />
+    <circle cx="611.6666666666667" cy="551.0" r="3.7" fill="#ae532e" />
+    <text x="611.6666666666667" y="545.0" font-size="13" text-anchor="middle">0</text>
+    <path d="M611.6666666666667 551.0L855.0 551.0" stroke="#ae532e" fill="none" />
+    <circle cx="855.0" cy="551.0" r="3.7" fill="#ae532e" />
+    <text x="855.0" y="545.0" font-size="13" text-anchor="middle">0</text>
+    <text x="32" y="635" font-size="15" text-anchor="start">相对浮点的最大 |ΔLLR|</text>
+    <path d="M110 700.0H870" stroke="#a7b6b3" />
+    <text x="93" y="704.0" font-size="13" text-anchor="end">0</text>
+    <text x="93" y="654.0" font-size="13" text-anchor="end">0.6575</text>
+    <circle cx="125.0" cy="689.3539837871244" r="3.7" fill="#426d9f" />
+    <text x="125.0" y="683.3539837871244" font-size="13" text-anchor="middle">0.14</text>
+    <path d="M125.0 689.3539837871244L368.33333333333337 689.9018620201558" stroke="#426d9f" fill="none" />
+    <circle cx="368.33333333333337" cy="689.9018620201558" r="3.7" fill="#426d9f" />
+    <text x="368.33333333333337" y="683.9018620201558" font-size="13" text-anchor="middle">0.1328</text>
+    <path d="M368.33333333333337 689.9018620201558L611.6666666666667 699.8499749943485" stroke="#426d9f" fill="none" />
+    <circle cx="611.6666666666667" cy="699.8499749943485" r="3.7" fill="#426d9f" />
+    <text x="611.6666666666667" y="693.8499749943485" font-size="13" text-anchor="middle">0.001973</text>
+    <path d="M611.6666666666667 699.8499749943485L855.0 699.9608483164793" stroke="#426d9f" fill="none" />
+    <circle cx="855.0" cy="699.9608483164793" r="3.7" fill="#426d9f" />
+    <text x="855.0" y="693.9608483164793" font-size="13" text-anchor="middle">0.0005149</text>
+    <text x="32" y="734" font-size="15" text-anchor="start">该边饱和次数</text>
+    <path d="M110 799.0H870" stroke="#a7b6b3" />
+    <text x="93" y="803.0" font-size="13" text-anchor="end">0</text>
+    <text x="93" y="753.0" font-size="13" text-anchor="end">1</text>
+    <circle cx="125.0" cy="799.0" r="3.7" fill="#267366" />
+    <text x="125.0" y="793.0" font-size="13" text-anchor="middle">0</text>
+    <text x="125.0" y="823" font-size="14" text-anchor="middle">(15,6)</text>
+    <path d="M125.0 799.0L368.33333333333337 799.0" stroke="#267366" fill="none" />
+    <circle cx="368.33333333333337" cy="799.0" r="3.7" fill="#267366" />
+    <text x="368.33333333333337" y="793.0" font-size="13" text-anchor="middle">0</text>
+    <text x="368.33333333333337" y="823" font-size="14" text-anchor="middle">(17,8)</text>
+    <path d="M368.33333333333337 799.0L611.6666666666667 799.0" stroke="#267366" fill="none" />
+    <circle cx="611.6666666666667" cy="799.0" r="3.7" fill="#267366" />
+    <text x="611.6666666666667" y="793.0" font-size="13" text-anchor="middle">0</text>
+    <text x="611.6666666666667" y="823" font-size="14" text-anchor="middle">(19,10)</text>
+    <path d="M611.6666666666667 799.0L855.0 799.0" stroke="#267366" fill="none" />
+    <circle cx="855.0" cy="799.0" r="3.7" fill="#267366" />
+    <text x="855.0" y="793.0" font-size="13" text-anchor="middle">0</text>
+    <text x="855.0" y="823" font-size="14" text-anchor="middle">(21,12)</text>
+    <text x="32" y="865" font-size="19" text-anchor="start">背景 SNR 20 dB   /   每档 20 帧，480 bit</text>
+    <text x="32" y="901" font-size="15" text-anchor="start">ΔBER（百分点）</text>
+    <path d="M110 916.0H870" stroke="#a7b6b3" />
+    <text x="93" y="970.0" font-size="13" text-anchor="end">-1.667</text>
+    <text x="93" y="920.0" font-size="13" text-anchor="end">0</text>
+    <circle cx="125.0" cy="916.0" r="3.7" fill="#ae532e" />
+    <text x="125.0" y="910.0" font-size="13" text-anchor="middle">0</text>
+    <path d="M125.0 916.0L368.33333333333337 916.0" stroke="#ae532e" fill="none" />
+    <circle cx="368.33333333333337" cy="916.0" r="3.7" fill="#ae532e" />
+    <text x="368.33333333333337" y="910.0" font-size="13" text-anchor="middle">0</text>
+    <path d="M368.33333333333337 916.0L611.6666666666667 916.0" stroke="#ae532e" fill="none" />
+    <circle cx="611.6666666666667" cy="916.0" r="3.7" fill="#ae532e" />
+    <text x="611.6666666666667" y="910.0" font-size="13" text-anchor="middle">0</text>
+    <path d="M611.6666666666667 916.0L855.0 916.0" stroke="#ae532e" fill="none" />
+    <circle cx="855.0" cy="916.0" r="3.7" fill="#ae532e" />
+    <text x="855.0" y="910.0" font-size="13" text-anchor="middle">0</text>
+    <text x="32" y="1000" font-size="15" text-anchor="start">相对浮点的最大 |ΔLLR|</text>
+    <path d="M110 1065.0H870" stroke="#a7b6b3" />
+    <text x="93" y="1069.0" font-size="13" text-anchor="end">0</text>
+    <text x="93" y="1019.0" font-size="13" text-anchor="end">0.6575</text>
+    <circle cx="125.0" cy="1048.4414275754855" r="3.7" fill="#426d9f" />
+    <text x="125.0" y="1042.4414275754855" font-size="13" text-anchor="middle">0.2177</text>
+    <path d="M125.0 1048.4414275754855L368.33333333333337 1064.4722244587952" stroke="#426d9f" fill="none" />
+    <circle cx="368.33333333333337" cy="1064.4722244587952" r="3.7" fill="#426d9f" />
+    <text x="368.33333333333337" y="1058.4722244587952" font-size="13" text-anchor="middle">0.00694</text>
+    <path d="M368.33333333333337 1064.4722244587952L611.6666666666667 1064.9182373604772" stroke="#426d9f" fill="none" />
+    <circle cx="611.6666666666667" cy="1064.9182373604772" r="3.7" fill="#426d9f" />
+    <text x="611.6666666666667" y="1058.9182373604772" font-size="13" text-anchor="middle">0.001075</text>
+    <path d="M611.6666666666667 1064.9182373604772L855.0 1064.9783545177106" stroke="#426d9f" fill="none" />
+    <circle cx="855.0" cy="1064.9783545177106" r="3.7" fill="#426d9f" />
+    <text x="855.0" y="1058.9783545177106" font-size="13" text-anchor="middle">0.0002846</text>
+    <text x="32" y="1099" font-size="15" text-anchor="start">该边饱和次数</text>
+    <path d="M110 1164.0H870" stroke="#a7b6b3" />
+    <text x="93" y="1168.0" font-size="13" text-anchor="end">0</text>
+    <text x="93" y="1118.0" font-size="13" text-anchor="end">1</text>
+    <circle cx="125.0" cy="1164.0" r="3.7" fill="#267366" />
+    <text x="125.0" y="1158.0" font-size="13" text-anchor="middle">0</text>
+    <text x="125.0" y="1188" font-size="14" text-anchor="middle">(15,6)</text>
+    <path d="M125.0 1164.0L368.33333333333337 1164.0" stroke="#267366" fill="none" />
+    <circle cx="368.33333333333337" cy="1164.0" r="3.7" fill="#267366" />
+    <text x="368.33333333333337" y="1158.0" font-size="13" text-anchor="middle">0</text>
+    <text x="368.33333333333337" y="1188" font-size="14" text-anchor="middle">(17,8)</text>
+    <path d="M368.33333333333337 1164.0L611.6666666666667 1164.0" stroke="#267366" fill="none" />
+    <circle cx="611.6666666666667" cy="1164.0" r="3.7" fill="#267366" />
+    <text x="611.6666666666667" y="1158.0" font-size="13" text-anchor="middle">0</text>
+    <text x="611.6666666666667" y="1188" font-size="14" text-anchor="middle">(19,10)</text>
+    <path d="M611.6666666666667 1164.0L855.0 1164.0" stroke="#267366" fill="none" />
+    <circle cx="855.0" cy="1164.0" r="3.7" fill="#267366" />
+    <text x="855.0" y="1158.0" font-size="13" text-anchor="middle">0</text>
+    <text x="855.0" y="1188" font-size="14" text-anchor="middle">(21,12)</text>
+    <text x="32" y="1230" font-size="19" text-anchor="start">背景 SNR 30 dB   /   每档 20 帧，480 bit</text>
+    <text x="32" y="1266" font-size="15" text-anchor="start">ΔBER（百分点）</text>
+    <path d="M110 1281.0H870" stroke="#a7b6b3" />
+    <text x="93" y="1335.0" font-size="13" text-anchor="end">-1.667</text>
+    <text x="93" y="1285.0" font-size="13" text-anchor="end">0</text>
+    <circle cx="125.0" cy="1281.0" r="3.7" fill="#ae532e" />
+    <text x="125.0" y="1275.0" font-size="13" text-anchor="middle">0</text>
+    <path d="M125.0 1281.0L368.33333333333337 1281.0" stroke="#ae532e" fill="none" />
+    <circle cx="368.33333333333337" cy="1281.0" r="3.7" fill="#ae532e" />
+    <text x="368.33333333333337" y="1275.0" font-size="13" text-anchor="middle">0</text>
+    <path d="M368.33333333333337 1281.0L611.6666666666667 1281.0" stroke="#ae532e" fill="none" />
+    <circle cx="611.6666666666667" cy="1281.0" r="3.7" fill="#ae532e" />
+    <text x="611.6666666666667" y="1275.0" font-size="13" text-anchor="middle">0</text>
+    <path d="M611.6666666666667 1281.0L855.0 1281.0" stroke="#ae532e" fill="none" />
+    <circle cx="855.0" cy="1281.0" r="3.7" fill="#ae532e" />
+    <text x="855.0" y="1275.0" font-size="13" text-anchor="middle">0</text>
+    <text x="32" y="1365" font-size="15" text-anchor="start">相对浮点的最大 |ΔLLR|</text>
+    <path d="M110 1430.0H870" stroke="#a7b6b3" />
+    <text x="93" y="1434.0" font-size="13" text-anchor="end">0</text>
+    <text x="93" y="1384.0" font-size="13" text-anchor="end">0.6575</text>
+    <circle cx="125.0" cy="1430.0" r="3.7" fill="#426d9f" />
+    <text x="125.0" y="1424.0" font-size="13" text-anchor="middle">0</text>
+    <path d="M125.0 1430.0L368.33333333333337 1430.0" stroke="#426d9f" fill="none" />
+    <circle cx="368.33333333333337" cy="1430.0" r="3.7" fill="#426d9f" />
+    <text x="368.33333333333337" y="1424.0" font-size="13" text-anchor="middle">0</text>
+    <path d="M368.33333333333337 1430.0L611.6666666666667 1430.0" stroke="#426d9f" fill="none" />
+    <circle cx="611.6666666666667" cy="1430.0" r="3.7" fill="#426d9f" />
+    <text x="611.6666666666667" y="1424.0" font-size="13" text-anchor="middle">0</text>
+    <path d="M611.6666666666667 1430.0L855.0 1430.0" stroke="#426d9f" fill="none" />
+    <circle cx="855.0" cy="1430.0" r="3.7" fill="#426d9f" />
+    <text x="855.0" y="1424.0" font-size="13" text-anchor="middle">0</text>
+    <text x="32" y="1464" font-size="15" text-anchor="start">该边饱和次数</text>
+    <path d="M110 1529.0H870" stroke="#a7b6b3" />
+    <text x="93" y="1533.0" font-size="13" text-anchor="end">0</text>
+    <text x="93" y="1483.0" font-size="13" text-anchor="end">1</text>
+    <circle cx="125.0" cy="1529.0" r="3.7" fill="#267366" />
+    <text x="125.0" y="1523.0" font-size="13" text-anchor="middle">0</text>
+    <text x="125.0" y="1553" font-size="14" text-anchor="middle">(15,6)</text>
+    <path d="M125.0 1529.0L368.33333333333337 1529.0" stroke="#267366" fill="none" />
+    <circle cx="368.33333333333337" cy="1529.0" r="3.7" fill="#267366" />
+    <text x="368.33333333333337" y="1523.0" font-size="13" text-anchor="middle">0</text>
+    <text x="368.33333333333337" y="1553" font-size="14" text-anchor="middle">(17,8)</text>
+    <path d="M368.33333333333337 1529.0L611.6666666666667 1529.0" stroke="#267366" fill="none" />
+    <circle cx="611.6666666666667" cy="1529.0" r="3.7" fill="#267366" />
+    <text x="611.6666666666667" y="1523.0" font-size="13" text-anchor="middle">0</text>
+    <text x="611.6666666666667" y="1553" font-size="14" text-anchor="middle">(19,10)</text>
+    <path d="M611.6666666666667 1529.0L855.0 1529.0" stroke="#267366" fill="none" />
+    <circle cx="855.0" cy="1529.0" r="3.7" fill="#267366" />
+    <text x="855.0" y="1523.0" font-size="13" text-anchor="middle">0</text>
+    <text x="855.0" y="1553" font-size="14" text-anchor="middle">(21,12)</text>
+    <text x="32" y="1600" font-size="15" text-anchor="start">各点为已完成回放的描述统计。未采集的量及独立验收结论另见本次运行报告。</text>
+  </g>
+</svg>

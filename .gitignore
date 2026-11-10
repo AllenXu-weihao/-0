@@ -1,4 +1,9 @@
 experiments/results/
+MIMO_v2_matlab (1)/
+experiments/_share78.py
+experiments/_flush78.py
+experiments/matlab位宽建模实验1_单计算数压窄/result/
+experiments/matlab位宽建模实验2_单计算过程协同压窄/result/
 audit_results/
 *.asv
 *.m~

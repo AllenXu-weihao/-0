@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>单边位宽落在六段计算上</title>
+<style>
+  :root {
+    --bg: #f7f6f3;
+    --ink: #1c1b19;
+    --muted: #5c5852;
+    --line: #e4e0d8;
+    --card: #fff;
+    --ok: #1f7a4d;
+    --warn: #8a5a00;
+    --bad: #a33b32;
+    --info: #1d4e89;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.55 "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  main { max-width: 980px; margin: 0 auto; padding: 28px 20px 64px; }
+  h1 { font-size: 26px; font-weight: 600; margin: 0 0 8px; }
+  h2 { font-size: 18px; font-weight: 600; margin: 0 0 8px; }
+  p { margin: 0 0 10px; }
+  .muted { color: var(--muted); }
+  .stats { display: flex; flex-wrap: wrap; gap: 18px; margin: 16px 0; }
+  .stat b { display: block; font-size: 28px; font-weight: 600; }
+  .stat span { color: var(--muted); font-size: 13px; }
+  .ok { color: var(--ok); }
+  .warn { color: var(--warn); }
+  .bad { color: var(--bad); }
+  .info { color: var(--info); }
+  nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 18px; }
+  button {
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font: inherit;
+    cursor: pointer;
+  }
+  button[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+  table { width: 100%; border-collapse: collapse; background: var(--card); font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-weight: 600; color: var(--muted); font-size: 12px; }
+  td.num, th.num { text-align: right; white-space: nowrap; }
+  tr.ok td:first-child { box-shadow: inset 3px 0 0 var(--ok); }
+  tr.warn td:first-child { box-shadow: inset 3px 0 0 var(--warn); }
+  tr.bad td:first-child { box-shadow: inset 3px 0 0 var(--bad); }
+  tr.info td:first-child { box-shadow: inset 3px 0 0 var(--info); }
+  .note {
+    background: var(--card);
+    border: 1px solid var(--line);
+    padding: 10px 12px;
+    margin-top: 12px;
+  }
+  .bars { display: grid; gap: 8px; margin: 12px 0 8px; }
+  .row { display: grid; grid-template-columns: 72px 1fr 36px; gap: 8px; align-items: center; }
+  .track { display: flex; height: 14px; background: var(--line); }
+  .track i { display: block; height: 100%; }
+  .track .g { background: var(--ok); }
+  .track .w { background: var(--warn); }
+  .track .r { background: var(--bad); }
+  .track .b { background: var(--info); }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--muted); }
+  .legend i { display: inline-block; width: 10px; height: 10px; margin-right: 4px; vertical-align: -1px; }
+  .legend .g { background: var(--ok); }
+  .legend .w { background: var(--warn); }
+  .legend .r { background: var(--bad); }
+  .legend .b { background: var(--info); }
+</style>
+</head>
+<body>
+<main>
+  <h1>单边位宽落在六段计算上</h1>
+  <p>双精度流程里每次只改一个数。80 帧、1920 bit、种子 1105。硬判差写成 0/10/20/30 dB 的比特数。严格 clean 同时要求硬判差为 0、饱和为 0。</p>
+  <div class="stats">
+    <div class="stat"><b class="ok">21</b><span>短于本梯子最上档</span></div>
+    <div class="stat"><b class="warn">20</b><span>clean 停在最上档</span></div>
+    <div class="stat"><b class="bad">4</b><span>最上档已经翻硬判</span></div>
+    <div class="stat"><b>256</b><span>float 误码 / 1920 bit</span></div>
+  </div>
+  <nav id="tabs"></nav>
+  <section id="panel"></section>
+<script>
+const stages = [
+  ["all", "六段总览"],
+  ["F", "F 候选准备"],
+  ["I1", "I1 先验与排序"],
+  ["I2", "I2 统计与证据"],
+  ["I3", "I3 消息与阻尼"],
+  ["I4", "I4 后验"],
+  ["R", "R 软比特"]
+];
+const bars = [
+  ["F 候选", [4, 6, 1, 0]],
+  ["I1 先验", [3, 3, 0, 0]],
+  ["I2 统计", [5, 3, 3, 1]],
+  ["I3 阻尼", [5, 6, 0, 0]],
+  ["I4 后验", [3, 2, 0, 0]],
+  ["R 读出", [1, 0, 0, 0]]
+];
+const copy = {
+  F: {
+    compute: "锁存 H 和 y，做 Gram 与右端，解 4×4，对每个变量的 64 个星座点评分，取 Top9 和覆盖，写出 local。分解和除法仍是 double。",
+    life: "H、y、候选、标签和 local 活过整帧。求解和 64 点工作区出了前端就可以放掉。",
+    next: "协同 F 时，H 不能用 S24.12 当起点：这一档已经差 5 bit。噪声方差停在 S12.10，脉冲方差停在 S12.6，再窄方差不再为正。"
+  },
+  I1: {
+    compute: "旧 β 和 local 进 A2，得到 20 口 × 9 候选的先验，减去每口最大值，写成 α，再做稳定降序。9 条候选车道在矩阵里不相交。",
+    life: "排序索引留到本轮反排。旧 β 留到阻尼写完。",
+    next: "协同 I1 的阶梯起点：权重 S12.10，乘积和累加 S20.12，输入、α 和 A2 输出 S24.12。冒烟里的 A2 输出 S20.12 不写入这条阶梯。"
+  },
+  I2: {
+    compute: "排序后的 α 做 exp、九路求和、概率，得到均值和方差。残差和加权能量进两分量 mix，写出 λ。logsumexp 放进 ai 的第 1 列。",
+    life: "概率和排序分数可以分时复用。λ 留到 A13 读完。",
+    next: "协同 I2 从已有 clean 档起步：exp S8.6、指数和 S10.5、概率 S16.14、均值 S12.8、方差 S8.6、加权能量 S10.8、残差和 λ 用 S24.12。mix 和 ai 整列先留在 double。"
+  },
+  I3: {
+    compute: "λ 和 ai 进 A13，按排序索引散回自然顺序，减峰、缩放得到 raw，再与旧 β 按 0.3 混合，写入另一块 β。",
+    life: "β 双缓冲。本轮新 β 全部写完才交换。",
+    next: "权重 S14.12、乘积和累加 S20.12、rate S12.10、旧支路 S16.10 可以短于消息。β、新支路、和、输出、raw 的 clean 仍是 S24.12。S16.10 上输出硬判虽齐，饱和已经出现。"
+  },
+  I4: {
+    compute: "新 β 进 A5，写出 4 个变量 × 9 个候选的 z。这一轮 z 不回到下一轮的计算。",
+    life: "只有第 3 轮的 z 要活到 24 个 LLR 写完。",
+    next: "权重可到 S10.8，乘积和累加可到 S20.12。输入和输出的 clean 是 S24.12。S16.10 的输出硬判差为 0，饱和 1515，不能当 clean。"
+  },
+  R: {
+    compute: "末轮 z 按每个比特的 0/1 标签各取最大，相减，夹到 ±20，得到 24 个 LLR。硬判是 LLR < 0。",
+    life: "最后的 z 和标签保持到 24 个输出完成。",
+    next: "这里只有 llr 一个数。单边 clean 到 S16.10。这段没有第二个参与数，不再单开协同。"
+  }
+};
+const rows = {
+  F: [
+    ["ok", "frontend_rhs", "Hᴴy，送进求解", "S16.8", "0.736", "S12.6 硬判 30/0/0/0，饱和 0"],
+    ["ok", "frontend_variance", "协方差对角线，评分用", "S16.12", "0.157", "S12.10 硬判 1/0/0/0，饱和 9"],
+    ["warn", "input_nv", "背景噪声方差", "S12.10", "2.291", "S10.8 起方差不再为正，中断，没有判决"],
+    ["warn", "input_iv", "脉冲额外方差", "S12.6", "0", "S10.4 起方差不再为正，中断，没有判决"],
+    ["warn", "input_y", "8 路接收，锁存整帧", "S24.12", "0.807", "S16.10 硬判 3/0/0/0，饱和 0"],
+    ["warn", "frontend_gram", "HᴴH + nv I", "S24.12", "0.806", "S16.8 硬判 13/1/0/0，饱和 0"],
+    ["warn", "frontend_center", "求解得到的中心", "S24.12", "0.079", "S16.10 硬判 9/0/0/0，饱和 0"],
+    ["warn", "frontend_cov", "求解得到的协方差", "S24.12", "0.157", "S16.8 硬判 2、饱和 0、LLR 差 18.97；S12.6 硬判 16、饱和 0、LLR 差 0.496"],
+    ["warn", "frontend_score", "64 点评分，供 Top9", "S24.12", "0.087", "S16.10 硬判 2/0/0/0，饱和 2942"],
+    ["warn", "frontend_local", "候选局部项，整帧供 A2/A5", "S24.12", "0.0006", "S16.10 硬判 1/0/0/0，饱和 2"],
+    ["bad", "input_H", "8×4 信道，同时当作已知 CSI", "最上档已差 5 bit", "0.793", "S24.12，5 bit 全在 0 dB，饱和 0"]
+  ],
+  I1: [
+    ["ok", "A2_w", "先验矩阵权重，列扇入 5", "S12.10", "0.082", "S10.8 硬判 5/0/0/0，饱和 0"],
+    ["ok", "A2_product", "按列非零乘积，double 后再量化", "S20.12", "0.017", "S16.10 硬判 8/0/0/0，饱和 23"],
+    ["ok", "A2_acc", "同上顺序的累加", "S20.12", "0.017", "S16.10 硬判 8/0/0/0，饱和 8055"],
+    ["warn", "A2_x", "旧 β 与 local", "S24.12", "0.037", "S16.10 硬判 3/0/0/0，饱和 6"],
+    ["warn", "alpha", "减峰后的 20×9 先验", "S24.12", "0.101", "S16.10 硬判 3/0/0/0，饱和 4712"],
+    ["warn", "A2_out", "A2 输出。阶梯不含冒烟", "S24.12", "0.017", "阶梯 S16.10 硬判 7/0/0/0，饱和 4774"]
+  ],
+  I2: [
+    ["ok", "var", "概率对星座的二阶矩", "S8.6", "0.886", "S6.4 硬判 10/1/2/0，饱和 0"],
+    ["ok", "exp", "减峰后的指数", "S8.6", "0.344", "S6.4 硬判 8/0/0/0，饱和 0"],
+    ["ok", "sum_exp", "一口 9 路指数和", "S10.5", "0.754", "S8.4 硬判 1/0/0/0，饱和 2"],
+    ["ok", "weighted", "信道能量乘方差", "S10.8", "0.938", "S8.6 硬判 5/0/1/0，饱和 0"],
+    ["ok", "mu", "概率对候选星座的均值", "S12.8", "0.374", "S10.6 硬判 9/0/1/0，饱和 0"],
+    ["warn", "prob", "指数除以分母", "S16.14", "0.004", "S10.8 硬判 2/0/0/0，中间档未测"],
+    ["warn", "residual", "观测减均值，再补回本变量", "S24.12", "0.101", "S16.10 硬判 1/0/0/0，饱和 0"],
+    ["warn", "lambda", "mix 之后写出的证据", "S24.12", "0.027", "S16.10 硬判 1/0/0/0，饱和 3"],
+    ["info", "ai", "仅第 1 列被 A13 读取", "严格 clean 在 S24.12", "约 0", "S4.2 硬判仍为 0；S16.10 起饱和来自未连接的 160 槽"],
+    ["bad", "mix_a", "背景分量的对数", "S32.8 已差 14 bit", "0.498", "全在 0 dB，饱和 0；S24.8 与 S32.8 相同"],
+    ["bad", "mix_b", "脉冲分量的对数", "S32.8 已差 2 bit", "0.497", "全在 0 dB，饱和 0；S24.8 与 S32.8 相同"],
+    ["bad", "mix_output", "两分量 logsumexp", "S32.8 已差 14 bit", "0.246", "全在 0 dB，饱和 0；S24.8 与 S32.8 相同"]
+  ],
+  I3: [
+    ["ok", "A13_w", "证据矩阵权重，ai 只有第 1 列接入", "S14.12", "0.157", "S12.10 硬判 6/0/0/0，饱和 0"],
+    ["ok", "A13_product", "按列非零乘积", "S20.12", "0.157", "S16.10 硬判 4/0/0/0，饱和 5"],
+    ["ok", "A13_acc", "按列非零累加", "S20.12", "0.157", "S16.10 硬判 4/0/0/0，饱和 5"],
+    ["ok", "rate", "阻尼系数 0.3", "S12.10", "0.151", "S8.6 硬判 9/0/0/0，饱和 0"],
+    ["ok", "damp_product_old", "(1−rate)·旧 β", "S16.10", "0.039", "S12.8 硬判 8/0/0/0，饱和 375"],
+    ["warn", "A13_x", "λ 与 ai 排成的输入", "S24.12", "0.027", "S16.10 硬判 1/0/0/0，饱和 4714"],
+    ["warn", "damp_product_new", "rate·raw", "S24.12", "0.101", "S16.10 硬判 4/0/0/0，饱和 0"],
+    ["warn", "damp_sum", "新旧两条支路相加", "S24.12", "0.102", "S16.10 硬判 4/0/0/0，饱和 0"],
+    ["warn", "beta", "写回的新消息，双缓冲", "S24.12", "0.102", "S16.10 硬判 4/0/0/0，饱和 0"],
+    ["warn", "A13_out", "反排前的 A13 输出", "S24.12", "0.101", "S16.10 硬判差 0、饱和 5；S12.8 为 67/11/1/0"],
+    ["warn", "raw", "减峰缩放后的新消息", "S24.12", "0.157", "S16.10 硬判差 0、饱和 139；S12.8 在 0 dB 差 2 bit"]
+  ],
+  I4: [
+    ["ok", "A5_w", "后验矩阵权重，列扇入 6", "S10.8", "0.016", "S8.6 硬判 2/0/0/0，饱和 0"],
+    ["ok", "A5_product", "按列非零乘积", "S20.12", "0.0007", "S16.10 硬判差 0、饱和 1；S12.8 在 0 dB 差 2 bit"],
+    ["ok", "A5_acc", "按列非零累加", "S20.12", "0.0007", "S16.10 饱和 4350；S12.8 硬判 2/3/7/0"],
+    ["warn", "A5_x", "新 β", "S24.12", "0.0008", "S12.8 硬判差 0、饱和 4880；S10.6 在 0 dB 差 10 bit"],
+    ["warn", "A5_out", "36 个 z，非末轮不反馈", "S24.12", "0.0002", "S16.10 饱和 1515；S12.8 硬判 0/3/7/0"]
+  ],
+  R: [
+    ["ok", "llr", "末轮 z 两侧取最大，相减，夹到 ±20", "S16.10", "0.0005", "S12.8 硬判 2/0/0/0，最大 LLR 差 12，饱和 1060"]
+  ]
+};
+
+function esc(s) {
+  return String(s).replace(/[&<>]/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c];
+  });
+}
+function table(list) {
+  const body = list.map(function (r) {
+    return "<tr class=\"" + r[0] + "\"><td>" + esc(r[1]) + "</td><td>" + esc(r[2]) +
+      "</td><td>" + esc(r[3]) + "</td><td class=\"num\">" + esc(r[4]) + "</td><td>" + esc(r[5]) + "</td></tr>";
+  }).join("");
+  return "<table><thead><tr><th>数</th><th>在这段里做什么</th><th>严格 clean 的最窄已测</th><th class=\"num\">该档最大 LLR 差</th><th>再窄一档</th></tr></thead><tbody>" +
+    body + "</tbody></table>";
+}
+function overview() {
+  const items = bars.map(function (b) {
+    const n = b[1][0] + b[1][1] + b[1][2] + b[1][3];
+    const segs = ["g", "w", "r", "b"].map(function (cls, i) {
+      return b[1][i] ? "<i class=\"" + cls + "\" style=\"width:" + (100 * b[1][i] / n) + "%\"></i>" : "";
+    }).join("");
+    return "<div class=\"row\"><span>" + esc(b[0]) + "</span><div class=\"track\">" + segs + "</div><span>" + n + "</span></div>";
+  }).join("");
+  return "<h2>46 个数按所在阶段归类</h2>" +
+    "<div class=\"legend\"><span><i class=\"g\"></i>短于最上档</span><span><i class=\"w\"></i>clean 停在最上档</span><span><i class=\"r\"></i>最上档已翻硬判</span><span><i class=\"b\"></i>硬判始终对齐，饱和在未连接槽</span></div>" +
+    "<div class=\"bars\">" + items + "</div>" +
+    "<p class=\"muted\">横条长度按该段的个数。来源：2026-11-05 阶梯，MATLAB R2025b，每次一个数，其余保持 double。I2 的蓝色是 ai。A2 输出冒烟的 S20.12 没有算进 I1 的绿色。</p>" +
+    "<p>能缩短的集中在三块矩阵的权重和乘加内部，以及 I2 的方差、exp、均值、指数和、加权能量。消息本体和前端大部分停在 S24.12。mix 三个数和 H 在所测最宽一档已经翻硬判。</p>" +
+    "<div class=\"note\">下一次是一段里面的数一起压。单边 clean 档只作该段的起点。I1 到 I4 每帧重复 3 轮，R 只在末轮做一次。协同预期写在结果分析里，这一页的数字都还是单边观察。</div>" +
+    "<h2>一帧怎么走</h2><p>F 冻结候选和 local。I1 用旧 β 做 A2 并排序。I2 由排序结果写出 λ。I3 用 A13 和阻尼交换 β。I4 用 A5 写出 z，非末轮的 z 不反馈。第 3 轮才把 z 变成 24 个 LLR。</p>";
+}
+function stage(id) {
+  const c = copy[id];
+  const label = stages.filter(function (s) { return s[0] === id; })[0][1];
+  return "<h2>" + esc(label) + "</h2><p>" + esc(c.compute) + "</p><p class=\"muted\">" + esc(c.life) + "</p>" +
+    table(rows[id]) +
+    "<p class=\"muted\">最大 LLR 差相对 float。硬判差的四个数对应 0 / 10 / 20 / 30 dB，每档 480 bit。80 帧 float 误码 256，其中 0 dB 占 190。</p>" +
+    "<div class=\"note\">" + esc(c.next) + "</div>";
+}
+function show(id) {
+  document.getElementById("panel").innerHTML = id === "all" ? overview() : stage(id);
+  Array.prototype.forEach.call(document.querySelectorAll("#tabs button"), function (btn) {
+    btn.setAttribute("aria-pressed", btn.dataset.id === id ? "true" : "false");
+  });
+}
+const nav = document.getElementById("tabs");
+stages.forEach(function (s) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.dataset.id = s[0];
+  btn.textContent = s[1];
+  btn.addEventListener("click", function () { show(s[0]); });
+  nav.appendChild(btn);
+});
+show("all");
+</script>
+</main>
+</body>
+</html>

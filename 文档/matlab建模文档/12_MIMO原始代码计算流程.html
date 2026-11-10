@@ -1,0 +1,28 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>MIMO.m 原始代码计算流程</title><style>*{box-sizing:border-box}body{max-width:980px;margin:auto;padding:2rem 4%;background:#f8f8f2;color:#203b43;font:16px/1.65 system-ui,'Microsoft YaHei',sans-serif}h1{line-height:1.25}header{border-bottom:2px solid #426e65}nav{display:flex;flex-wrap:wrap;gap:.55em;margin:1.2em 0}a{color:#175b56}nav a{padding:.25em .65em;background:#e2ede5;border-radius:.3em}article{border-left:3px solid #81ac9e;padding:.5em 1.2em;margin:1em 0;background:white}h2{font-size:1.18em;margin:.2em 0}.ports{font-weight:600;color:#315c72}summary{cursor:pointer;color:#225d53}pre{overflow:auto;background:#eef3ef;padding:1em;font-size:.82em}footer{border-top:1px solid #9cafa7}</style><header><p>MIMO_v2_matlab · 代码研读</p><h1>从八个复观测到 24 个软比特</h1><p>沿 MATLAB 函数调用顺序阅读。中间三轮迭代反复经过 A2、残差似然、A13 与 A5；下列行号对应本次工程的 <a href="../../MIMO.m">MIMO.m</a>。</p></header><nav aria-label="跳至计算阶段"><a href="#s0">入口与样例</a><a href="#s1">构造候选</a><a href="#s2">A2 与排序</a><a href="#s3">干扰消除与似然</a><a href="#s4">A13 与反馈</a><a href="#s5">A5 与软判决</a></nav><article id="s0"><h2>入口与样例</h2><div class="ports">输入结构 / 部署包 → 结果与审计</div><p>无参数时取包内样例并校验轨迹。传入 local 时跳过前端。文件加载、缓存、断言和日志归测试平台。</p><details><summary>展开源代码与行号</summary><pre>6  if nargin&lt;2,mode='float';end
+8  p=load_package();demo=nargin==0;if demo,input=p.example;end
+10  if ~isfield(input,'local'),input=frontend(task,input,p);end
+11  [z,audit]=pkg_vf_infer(task,input,p.profile,p.profile.fixed_passes,mode);result=readout(task,z,input);
+17  if isempty(cached),s=load(fullfile(fileparts(mfilename('fullpath')),'deployment.mat'),'pack');cached=s.pack;end</pre></details></article><article id="s1"><h2>构造候选</h2><div class="ports">8 个复观测、8×4 信道 → 4×9 个候选与标签</div><p>先做正则化线性求解，再给每流全部 64 点打分。选 9 点时兼顾比特标签覆盖。</p><details><summary>展开源代码与行号</summary><pre>27  y=double(input.y(:).');assert(numel(y)==8);nv=double(input.noiseVar);iv=double(input.impulseExtraVar);
+30   H=double(input.H);assert(isequal(size(H),[8 4]));[constellation,bitTable]=qam64_table();
+197  A = H'*H+noiseVar*eye(Nt);
+198  xhat = A\(H'*y);
+199  covariance = A\eye(Nt);
+219      [~,order] = sort(score,'descend');
+220      keep = mimo_candidate_frontend__confidence_gated_bit_coverage(order,score,bitTable,L,coverageGap);</pre></details></article><article id="s2"><h2>A2 与排序</h2><div class="ports">180 项旧 β + 36 项 local → 20×9 分数及索引</div><p>每次调用初始 β 为零。每轮将 A2 输出逐口减峰、按配置缩放，再排序；候选随索引重排。</p><details><summary>展开源代码与行号</summary><pre>107   local=double(d.local(b,:));beta=zeros(1,S);
+113    alpha=reshape(vf_infer__mv('A2',[beta local]),L,P).';alpha=alpha-max(alpha,[],2);
+114    if strcmp(task,'mimo'),alpha=alpha*cfg.mimoAlphaScale;end
+115    [a,idx]=sort(alpha,2,'descend');cs=zeros(P,L);
+116    for j=1:P,cs(j,:)=c(pv(j),idx(j,:));end</pre></details></article><article id="s3"><h2>干扰消除与似然</h2><div class="ports">分数、候选、H、y → 288 项 λ + 180 项 ai</div><p>对每个端口求概率、均值、方差。8 个接收观测 × 4 路 × 9 个候选分别计算残差似然。</p><details><summary>展开源代码与行号</summary><pre>118    prob=exp(a/temp-max(a/temp,[],2));prob=prob./sum(prob,2);
+119    mu=sum(prob.*cs,2);varr=sum(prob.*abs(cs-mu).^2,2);lambda=[];
+124       q=pp(v);residual=y(rx)-H(rx,:)*mu(pp)+H(rx,v)*(mu(q)-cs(q,:));
+125       weighted=abs(H(rx,:)).^2.*varr(pp).';extra=max(0,sum(weighted)-weighted(v))*cfg.mimoSoftIcVarianceScale;
+126       lambda=[lambda vf_infer__mix(residual,nv+extra,iv+extra,cfg.channelImpulseEpsilon)]; %#ok&lt;AGROW&gt;
+129     lambda=lambda*cfg.mimoLambdaScale;ai=a;mx=max(a,[],2);ai(:,1)=mx+log(sum(exp(a-mx),2));</pre></details></article><article id="s4"><h2>A13 与反馈</h2><div class="ports">468 项 → 180 项 score → 下一轮的 β</div><p>按原候选索引散回，然后减峰、缩放、阻尼。新 β 要在下一轮 A2 读取前有效。</p><details><summary>展开源代码与行号</summary><pre>147    score=reshape(vf_infer__mv('A13',[lambda reshape(ai.',1,[])]),L,P).';raw=zeros(P,L);
+148    for j=1:P,raw(j,idx(j,:))=score(j,:);end
+149    raw=raw-max(raw,[],2);raw=reshape(raw.',1,[]);
+150    if strcmp(task,'mimo'),raw=raw*cfg.mimoBetaScale;end
+151    rate=p.runtime.rate;beta=(1-rate)*beta+rate*raw;</pre></details></article><article id="s5"><h2>A5 与软判决</h2><div class="ports">缩放后的 β、local → 36 个 z → 24 个 LLR</div><p>每轮都保存 z；末轮按 Gray 标签取两组最大值之差，限幅 ±20，负值判 1。</p><details><summary>展开源代码与行号</summary><pre>153    if strcmp(task,'mimo'),bi=bi*cfg.mimoPosteriorBetaScale;li=li*cfg.mimoPosteriorPriorScale;end
+154    z=reshape(vf_infer__mv('A5',[bi li]),L,4).';output(b,t,:,:)=reshape(z,1,1,4,L);
+52   cb=permute(d.candidateBit,[1 3 2 4]);llr=zeros(B,4,6);
+53   for bit=1:6,a=last;b=last;a(cb(:,:,:,bit)~=0)=-1e6;b(cb(:,:,:,bit)==0)=-1e6;llr(:,:,bit)=max(a,[],3)-max(b,[],3);end
+54   result.llr=reshape(permute(max(-20,min(20,llr)),[1 3 2]),B,24);result.bits=result.llr&lt;0;</pre></details></article><footer><h2>一次矩阵乘法如何落到硬件</h2><p>浮点分支以 x*A 定义数值结果。fixed_mvm 先量化输入与权重，在 double 的精确整数范围内做乘加，然后检查累加器范围并量化输出。硬件设计还要决定非零项次序、乘加器数量、系数和索引的存储布局，以及有效信号在哪一拍出现。</p><p><a href="../../audit_results/deployment_audit.json">查看部署尺寸和数值审计</a></p></footer></html>

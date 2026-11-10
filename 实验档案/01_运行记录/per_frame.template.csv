@@ -1,0 +1,1 @@
+run_id,candidate_id,seed,case_index,snr_db,n_bits,reference_errors,candidate_errors,became_wrong,became_correct,disagreements,llr_max_abs,saturations

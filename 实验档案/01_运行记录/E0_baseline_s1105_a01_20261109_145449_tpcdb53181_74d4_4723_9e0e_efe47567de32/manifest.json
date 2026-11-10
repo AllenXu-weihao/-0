@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "run_id": "E0_baseline_s1105_a01_20261109_145449_tpcdb53181_74d4_4723_9e0e_efe47567de32",
+  "experiment": "E0",
+  "label": "baseline",
+  "attempt": 1,
+  "previous_run_id": "",
+  "seed": 1105,
+  "status": "COMPLETE",
+  "matlab_version": "25.2.0.2998904 (R2025b)",
+  "machine": "PCWIN64",
+  "created_utc": "2026-11-09 06:54:50",
+  "deployment_sha256": "c6f359f279328c7bce5a854e46e7337004f802ad4344b1560943ac02661b754f",
+  "mimo_sha256": "83371d309eec814813a118a00666b01d0fb28ab33723dcd6c005d21cff31ce9d",
+  "driver_revision": "experiments/run_wire_range.m + experiments/run_stitch_variants.m as of 2026-11-09, no git revision recorded",
+  "entry_command": "diary raw/matlab.log; run_wire_range(raw/wire_range); run_stitch_variants(raw/stitch); diary off",
+  "dataset_role": "回归",
+  "cases_path": "raw/stitch/inputs.mat",
+  "reference": "MIMO float, make_cases(20,1105)",
+  "candidate_ids": [
+    "I2_S10_6",
+    "F_S24_14",
+    "I1_S24_14",
+    "I2_S24_14",
+    "I3_S24_14",
+    "R_S16_10",
+    "mild"
+  ],
+  "matrix_arithmetic": "wire range: ordered double MAC, no quantize; stitch: quantize each nonzero product and each partial sum",
+  "architecture": "instrumented MATLAB, not the FPGA netlist",
+  "decision_rule": "reproduce float 190/61/5/0=256, ordered LLR gap ~1e-14, I2_S10_6 177/61/5/0=243 disagree 103, mild 181/61/5/0=247 disagree 13",
+  "raw_sources": [
+    "raw/wire_range/观察.txt",
+    "raw/wire_range/range.csv",
+    "raw/stitch/summary.csv",
+    "raw/stitch/per_frame.csv"
+  ],
+  "figures": [],
+  "report": "实验档案/04_分析报告/E0_baseline_s1105_a01_20261109_145449_tpcdb53181_74d4_4723_9e0e_efe47567de32.md",
+  "error": ""
+}

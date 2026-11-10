@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FPGA 硬件映射与时序推演</title>
+<style>
+  :root {
+    --ink:#1c1b19; --muted:#5e5a54; --line:#ddd8cf; --bg:#f6f5f2; --card:#fff;
+    --accent:#1d4e89; --soft:#eef3f8; --warn:#8a5a12; --warnbg:#f8f1e3;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 "Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; }
+  main { max-width:1100px; margin:0 auto; padding:28px 20px 80px; }
+  h1 { font-size:26px; font-weight:600; margin:0 0 8px; }
+  h2 { font-size:18px; margin:0 0 12px; }
+  p { margin:0 0 10px; }
+  .muted { color:var(--muted); }
+  .stats { display:flex; flex-wrap:wrap; gap:22px; margin:14px 0 8px; }
+  .stats b { display:block; font-size:26px; font-weight:600; }
+  .stats span { color:var(--muted); font-size:13px; }
+  nav { display:flex; flex-wrap:wrap; gap:8px; margin:18px 0; }
+  nav button, .rowbtns button {
+    background:var(--card); color:var(--ink); border:1px solid var(--line);
+    border-radius:999px; padding:6px 12px; cursor:pointer; font:inherit;
+  }
+  nav button[aria-pressed="true"], .rowbtns button[aria-pressed="true"] {
+    background:var(--accent); color:#fff; border-color:var(--accent);
+  }
+  .panel { display:none; }
+  .panel.on { display:block; }
+  .map { display:grid; grid-template-columns:1fr; gap:0; }
+  .block {
+    text-align:left; width:100%; background:var(--card); border:1px solid var(--line);
+    padding:12px 14px; cursor:pointer; font:inherit; color:inherit;
+  }
+  .block:hover, .block.on { border-color:var(--accent); background:var(--soft); }
+  .block h3 { margin:0 0 4px; font-size:16px; }
+  .w { color:var(--accent); font-weight:600; }
+  .arrow { text-align:center; color:var(--muted); padding:6px 0; font-size:13px; }
+  .loop { border-left:3px solid var(--accent); padding:8px 12px; margin:8px 0; background:#e7eef6; }
+  .detail { margin-top:14px; background:var(--card); border:1px solid var(--line); padding:14px 16px; }
+  .detail h3 { margin:0 0 6px; font-size:16px; }
+  table { width:100%; border-collapse:collapse; background:var(--card); font-size:14px; margin:8px 0 14px; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--muted); font-size:12px; font-weight:600; }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
+  .note { background:var(--warnbg); border:1px solid #ead7b2; padding:10px 12px; margin:10px 0 14px; }
+  .gantt { overflow-x:auto; background:var(--card); border:1px solid var(--line); padding:12px; }
+  .lane { display:grid; grid-template-columns:92px 1fr; gap:8px; align-items:center; margin:6px 0; }
+  .lane .name { font-size:13px; color:var(--muted); }
+  .bars { position:relative; height:28px; background:#f0ece6; width:100%; }
+  .bar { position:absolute; top:3px; height:22px; background:var(--accent); color:#fff; font-size:12px; line-height:22px; padding:0 6px; white-space:nowrap; overflow:hidden; }
+  .bar.alt { background:#3d6b4f; }
+  .bar.dim { background:#8d7340; }
+  .bar.hatch { background:repeating-linear-gradient(-45deg,#c8bfb2,#c8bfb2 4px,#b3a894 4px,#b3a894 8px); color:var(--ink); }
+  .axis { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-top:4px; }
+  .rowbtns { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 12px; }
+  ul { margin:6px 0 0; padding-left:18px; }
+  li { margin:2px 0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>硬件映射与时序推演</h1>
+  <p class="note">本图保留实验 2 六段格式与历史发射槽推演。<a href="11_四流64QAM迭代检测器定点化论文梗概.md">论文 11</a> 统一给出当前控制器和完整链路的验收预算：40 MHz、20 kbit/s、1.20 ms。图中每轮执行 A5；现有控制器只在末轮请求 A5。</p>
+  <p>蓝图格式接到块和线上。F <span class="w">S14.10</span>，I1 / I2 <span class="w">S10.6</span>，I3 / I4 <span class="w">S16.10</span>，R <span class="w">S8.4</span>。MATLAB 联合配置在 80 帧上错 243 bit。拍数按「1 次实乘或 1 次比较交换 = 1 个发射槽」画出，log / exp / 4×4 求解内部不占这个长度。</p>
+  <div class="stats">
+    <div><b>28044</b><span>一帧已知发射槽。含前端，末轮 A5，不含 log/exp</span></div>
+    <div><b>4796</b><span>一轮关键路径上的发射槽</span></div>
+    <div><b>46000 bit</b><span>三块系数按段格式存值的载荷</span></div>
+    <div><b>5708 bit</b><span>一帧状态寄存器载荷</span></div>
+  </div>
+  <p class="muted">此处假设存储读端口、接口带宽和服务并行度充足，才可重叠前两轮 A5 的 432 个槽，以及下一帧前端能否挨着本帧的核跑。一轮中间隔着残差，A2 和 A13 拆开不会把 4796 切掉一大半。</p>
+
+  <nav>
+    <button type="button" data-tab="flow" aria-pressed="true">数据流</button>
+    <button type="button" data-tab="store" aria-pressed="false">存储</button>
+    <button type="button" data-tab="unit" aria-pressed="false">计算单元</button>
+    <button type="button" data-tab="time" aria-pressed="false">时序</button>
+  </nav>
+
+  <section id="flow" class="panel on">
+    <h2>数据流</h2>
+    <p class="muted">点一块，下面写出它的输入、输出和交接位宽。</p>
+    <div class="map" id="flowmap"></div>
+    <div class="detail" id="flowdetail"></div>
+  </section>
+
+  <section id="store" class="panel">
+    <h2>存储单元</h2>
+    <p>系数按列压缩。零用支撑掩码，不占码本一级。量化到段格式后 A2 / A13 / A5 仍是 15 / 14 / 13 个不同级，所以 4 位索引加一张小表，和直接存量化后的值是同一组权重。</p>
+    <table>
+      <thead>
+        <tr><th>矩阵</th><th>形状</th><th class="num">非零</th><th>列扇入</th><th class="num">存值 bit</th><th class="num">索引加小表 bit</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>A2</td><td>216×180</td><td class="num">900</td><td>每列 5。候选通道不交叉</td><td class="num">18010</td><td class="num">12760</td></tr>
+        <tr><td>A13</td><td>468×180</td><td class="num">828</td><td>扇入 4/5/6 的列数为 108/36/36。ai 跨候选</td><td class="num">22510</td><td class="num">12798</td></tr>
+        <tr><td>A5</td><td>216×36</td><td class="num">216</td><td>每列 6，每个输入只用一次</td><td class="num">5480</td><td class="num">3096</td></tr>
+        <tr><td>合计</td><td></td><td class="num">1944</td><td></td><td class="num">46000</td><td class="num">28654</td></tr>
+      </tbody>
+    </table>
+    <p class="muted">行地址 A2、A5 为 U8，A13 为 U9。列指针 A2、A13 为 10 位，A5 为 8 位，列数加 1 个哨兵。以前 S18.14 的稀疏载荷是 55288 bit。表中以列指针最小宽度计算。旧 RTL 三路指针均为 10 位，A5 的 37 项因此多 74 个逻辑位；实际资源另查综合报告。</p>
+    <table>
+      <thead>
+        <tr><th>帧内状态</th><th>形状</th><th>格式</th><th class="num">一份 bit</th><th>寿命</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>y</td><td>8 路复数</td><td>S14.10 ×2</td><td class="num">224</td><td>整帧。帧流水则两份</td></tr>
+        <tr><td>H</td><td>8×4 复数</td><td>S14.10 ×2</td><td class="num">896</td><td>整帧。帧流水则两份</td></tr>
+        <tr><td>nv、iv</td><td>2</td><td>S14.10</td><td class="num">28</td><td>整帧</td></tr>
+        <tr><td>接收置换</td><td>8</td><td>U3</td><td class="num">24</td><td>整帧。每帧重算</td></tr>
+        <tr><td>候选序号</td><td>4×9</td><td>U6</td><td class="num">216</td><td>整帧</td></tr>
+        <tr><td>比特标签</td><td>4×9×6</td><td>U1</td><td class="num">216</td><td>整帧，读出时使用</td></tr>
+        <tr><td>local</td><td>36</td><td>S14.10</td><td class="num">504</td><td>整帧。进 A2 再量化到 S10.6</td></tr>
+        <tr><td>β</td><td>180</td><td>S16.10</td><td class="num">2880</td><td>屏障调度一份。进 A2 再量化到 S10.6</td></tr>
+        <tr><td>排序索引</td><td>20×9</td><td>U4</td><td class="num">720</td><td>本轮，直到反排序写完</td></tr>
+        <tr><td>合计</td><td></td><td></td><td class="num">5708</td><td></td></tr>
+      </tbody>
+    </table>
+    <div class="note">星座表是 64 个符号的电平 −7…7，公共系数 1/√42，共 512 bit。实验没有把候选坐标量化到 S10.6。统计单元内部保持双精度语义，写出的均值和方差才是 S10.6。160 个没有权重的 ai 槽不建寄存器。</div>
+  </section>
+
+  <section id="unit" class="panel">
+    <h2>计算单元</h2>
+    <p class="muted">点一行看它和实验算术怎么对应。</p>
+    <table id="unittable">
+      <thead>
+        <tr><th>单元</th><th>工作量</th><th>写出格式</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div class="detail" id="unitdetail"></div>
+  </section>
+
+  <section id="time" class="panel">
+    <h2>时序</h2>
+    <div class="rowbtns">
+      <button type="button" id="modeSplit" aria-pressed="true">三块矩阵乘加器，A5 与下一轮重叠</button>
+      <button type="button" id="modeOne" aria-pressed="false">全程一块乘法器</button>
+    </div>
+    <p id="timecap"></p>
+    <div class="gantt" id="gantt"></div>
+    <div class="note">log / exp 和求解岛没有画进色条。求解岛是几十次运算。残差点积按每个接收天线算一次；源代码在 4 个变量循环里各算一遍，数相同。mix 自带乘法器时，576 次 |r|² 里的大部分可以叠在 1376 次残差乘后面，图上仍按不重叠画。</div>
+    <table>
+      <thead>
+        <tr><th>路径</th><th class="num">已知发射槽</th><th>还要另加</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>一轮关键路径</td><td class="num">4796</td><td>该轮 exp 与 mix 的延迟</td></tr>
+        <tr><td>三轮 + 末轮 A5</td><td class="num">14604</td><td>3 份非线性延迟。前两轮 A5 已叠进下一轮 A2</td></tr>
+        <tr><td>再加前端</td><td class="num">28044</td><td>2048 次前端 mix 的 log/exp，以及求解岛</td></tr>
+        <tr><td>一块乘法器、A5 不重叠</td><td class="num">28476</td><td>同上，再把前两轮 A5 的 432 槽串进来</td></tr>
+      </tbody>
+    </table>
+    <p>帧启动间隔 N = N_front + 3·(4796 + L_exp + L_mix) + 216 + L_read − N_hide。吞吐是 24·f / N。f 和各段 L 还没有数。</p>
+  </section>
+<script>
+const flow = [
+  { id:"in", name:"输入锁存", fmt:"S14.10", kind:"once",
+    text:"8 路 y、8×4 的 H、噪声方差和脉冲方差。实部和虚部分开存。",
+    io:"写出 y 224 bit、H 896 bit、两个方差 28 bit。" },
+  { id:"F", name:"F 候选准备", fmt:"S14.10", kind:"once",
+    text:"Gram 与右端之后进入 4×4 求解岛，岛内是双精度。出来的中心和协方差再量化。随后 4×64 点评分、Top-9 和覆盖，并按 H 做接收分组。",
+    io:"local 36×S14.10。候选序号 U6，标签 6 bit。星座坐标不在这一步收成 S14.10。" },
+  { id:"I1", name:"I1 先验与排序", fmt:"S10.6", kind:"loop",
+    text:"β 从 S16.10 再量化到 S10.6，local 从 S14.10 再量化到 S10.6。A2 每一项乘积和每一次部分和都回到 S10.6。然后 20 口 9 点稳定降序。",
+    io:"900 次实乘加，列扇入恰好 5。9 个候选通道互不通信。索引 U4 保留到反排序。" },
+  { id:"I2", name:"I2 统计与证据", fmt:"S10.6", kind:"loop",
+    text:"softmax、均值、方差、残差、mix。边界上的数是 S10.6，log 和 exp 内部仍是双精度。只保留 20 个 logsumexp。",
+    io:"统计乘 720，残差乘 1376，mix 288 个标量。λ 放宽到 S16.10 时值不变。" },
+  { id:"I3", name:"I3 消息与阻尼", fmt:"S16.10", kind:"loop",
+    text:"A13 的乘积和部分和每步回到 S16.10。按索引把分数散回原候选顺序，再用 307/1024 和 717/1024 做阻尼。",
+    io:"828 次实乘加。扇入 4、5、6 的列数是 108、36、36。新 β 给 A5，也给下一轮 A2。" },
+  { id:"I4", name:"I4 后验", fmt:"S16.10", kind:"loop",
+    text:"A5 读新 β 和 local。local 从 S14.10 放到 S16.10 时小数步长相同，数值不变。每个输入只进入一个输出。",
+    io:"216 次实乘加，列扇入恰好 6。前两轮可以和下一轮 A2 同时做。只有第 3 轮的 z 往下走。" },
+  { id:"R", name:"R 软比特", fmt:"S8.4", kind:"once",
+    text:"每个变量的 6 个比特，分别取标签 0 和标签 1 的最大分数，相减，先夹到 ±20，再量化。",
+    io:"补码 S(8,4) 可表示 −8 至 7.9375。落在端点外的大 LLR 保持符号。24 个数。" }
+];
+
+const units = [
+  ["锁存","每帧 8 路 y、8×4 H、两个方差","S14.10","实部虚部分开。帧流水时这份存储做两套，下一帧前端才不会盖住本帧。"],
+  ["Gram / 右端","实乘 256 + 128","入口 S14.10","下三角用上三角的共轭。方差只加在 4 个对角上。"],
+  ["求解岛","4×4 分解，5 个右端","内部双精度，出口 S14.10","实验的分解就是 MATLAB 双精度。换成 FP32 或定点除法要另测。拍数相对 2048 次 mix 很小，不写进 13440。"],
+  ["候选引擎","实乘约 12288，mix 2048 次","分数 S14.10","4 变量 × 64 点。残差权重 0.25，是右移 2 位。覆盖检查最多 6 遍，只改 9 个入选下标。"],
+  ["分组","21 + 10 个组合代价","索引","成员每帧变。端口号 = 组号×4 + 变量号，共 20。"],
+  ["A2","每轮 900 次实乘加","S10.6","和实验一致的做法是每一项乘完就量化，部分和每加一次也量化。9 路同时开时每路 100 次。宽累加器是另一套电路。"],
+  ["排序","20×9 稳定降序","值 S10.6，索引 U4","20 套插入排序最多 36 次交换。一套比较器是 720 次。相等时留原下标。"],
+  ["统计","180 次 exp，720 次实乘","写出 S10.6","温度是 1，除法不实例化。exp 的延迟还没定，可能长过这 720 拍。"],
+  ["残差","每轮实乘 1376","S10.6","H 的一行和该组 4 个均值的点积，每个接收天线算一次。方差缩放 0.5 是移位。"],
+  ["mix","每轮 288 个标量","边界 S10.6","每个点 2 次 exp、1 次 log，另加 |r|² 的乘法。log(π·方差) 32 组各算一次。内部仍是双精度语义。"],
+  ["logsumexp","每轮 20 个","S10.6","每个口的第 1 个排序候选。另外 160 个 ai 槽没有权重。"],
+  ["A13","每轮 828 次实乘加","S16.10","λ 的 288 行各用一次，且不换候选号。20 个 ai 各连到另外 3 个变量的 9 个候选。"],
+  ["阻尼","180 个数，两项乘","S16.10","rate 量化为 307/1024，补系数 717/1024，和为 1。先量化两项乘积，再量化和。"],
+  ["A5","每轮 216 次实乘加","S16.10","9 个候选通道各 24 次。与下一轮 A2 共享只读数据；同时发起需要独立服务和足够的读端口。"],
+  ["读出","24 个 LLR","S8.4","先夹 ±20，再量化饱和至 [−8,7.9375]。硬判看符号。"]
+];
+
+function el(tag, attrs, children) {
+  const n = document.createElement(tag);
+  if (attrs) Object.keys(attrs).forEach(function (k) {
+    if (k === "text") n.textContent = attrs[k];
+    else n.setAttribute(k, attrs[k]);
+  });
+  (children || []).forEach(function (c) { n.appendChild(c); });
+  return n;
+}
+
+const flowmap = document.getElementById("flowmap");
+const flowdetail = document.getElementById("flowdetail");
+function showFlow(item) {
+  flowdetail.innerHTML = "<h3>" + item.name + " · " + item.fmt + "</h3><p>" + item.text + "</p><p>" + item.io + "</p>";
+  Array.prototype.forEach.call(flowmap.querySelectorAll(".block"), function (b) {
+    b.classList.toggle("on", b.getAttribute("data-id") === item.id);
+  });
+}
+flow.forEach(function (item, i) {
+  if (item.kind === "loop" && flow[i - 1].kind !== "loop") {
+    const note = el("div", { class: "loop" });
+    note.appendChild(el("p", { text: "I1 到 I4 每帧 3 轮。β 回到下一轮 I1。非末轮的 z 不回到计算。" }));
+    flowmap.appendChild(note);
+  }
+  if (i > 0 && !(item.kind === "loop" && flow[i - 1].kind === "loop")) {
+    const via = item.id === "I1" ? "候选和 local 活过整帧" : (item.id === "R" ? "只用第 3 轮的 z" : "锁存后进入 F");
+    flowmap.appendChild(el("div", { class: "arrow", text: via }));
+  } else if (item.kind === "loop" && flow[i - 1] && flow[i - 1].kind === "loop") {
+    flowmap.appendChild(el("div", { class: "arrow", text: "本段写完再进下一段" }));
+  }
+  const b = el("button", { type: "button", class: "block", "data-id": item.id });
+  const h = el("h3");
+  h.appendChild(document.createTextNode(item.name + " "));
+  h.appendChild(el("span", { class: "w", text: item.fmt }));
+  b.appendChild(h);
+  b.appendChild(el("p", { text: item.text }));
+  b.addEventListener("click", function () { showFlow(item); });
+  flowmap.appendChild(b);
+});
+showFlow(flow[1]);
+
+const tbody = document.querySelector("#unittable tbody");
+const unitdetail = document.getElementById("unitdetail");
+units.forEach(function (u, idx) {
+  const tr = document.createElement("tr");
+  tr.style.cursor = "pointer";
+  [u[0], u[1], u[2]].forEach(function (cell) {
+    tr.appendChild(el("td", { text: cell }));
+  });
+  tr.addEventListener("click", function () {
+    unitdetail.innerHTML = "<h3>" + u[0] + "</h3><p>" + u[3] + "</p>";
+  });
+  tbody.appendChild(tr);
+  if (idx === 5) unitdetail.innerHTML = "<h3>" + u[0] + "</h3><p>" + u[3] + "</p>";
+});
+
+const roundBlocks = [
+  { name:"A2", slots:900, cls:"" },
+  { name:"排序", slots:36, cls:"dim" },
+  { name:"统计乘", slots:720, cls:"alt" },
+  { name:"残差乘", slots:1376, cls:"alt" },
+  { name:"|r|²", slots:576, cls:"dim" },
+  { name:"A13", slots:828, cls:"" },
+  { name:"阻尼", slots:360, cls:"dim" }
+];
+
+function draw(split) {
+  const gantt = document.getElementById("gantt");
+  gantt.innerHTML = "";
+  const cap = document.getElementById("timecap");
+  const front = 13440;
+  const round = roundBlocks.reduce(function (s, b) { return s + b.slots; }, 0);
+  const a5 = 216;
+  const known = split ? front + 3 * round + a5 : front + 3 * round + 3 * a5;
+  cap.textContent = split
+    ? "前两轮 A5 各 216 槽叠在下一轮 A2 的 900 槽里，末轮 A5 单独占 216。一帧已知发射槽 " + known + "。log/exp 没有画进色条。"
+    : "一块乘法器时三轮 A5 都排在阻尼后面，共 " + (3 * a5) + " 槽。一帧已知发射槽 " + known + "。log/exp 没有画进色条。";
+  function lane(title, parts) {
+    const total = parts.reduce(function (s, b) { return s + b.slots; }, 0);
+    const row = el("div", { class: "lane" });
+    row.appendChild(el("div", { class: "name", text: title }));
+    const box = el("div", { class: "bars" });
+    let x = 0;
+    parts.forEach(function (b) {
+      const d = el("div", { class: "bar " + (b.cls || "") });
+      const pct = (100 * b.slots / total);
+      d.style.left = x + "%";
+      d.style.width = pct + "%";
+      d.title = b.name + " · " + b.slots + " 槽";
+      d.textContent = pct > 6.5 ? (b.name + " " + b.slots) : "";
+      box.appendChild(d);
+      x += pct;
+    });
+    row.appendChild(box);
+    gantt.appendChild(row);
+  }
+  const frameParts = [
+    { name:"前端", slots:front, cls:"alt" },
+    { name:"三轮", slots:3 * round, cls:"" }
+  ];
+  if (split) frameParts.push({ name:"末轮 A5", slots:a5, cls:"dim" });
+  else frameParts.push({ name:"三轮 A5", slots:3 * a5, cls:"dim" });
+  lane("一帧", frameParts);
+  const zoom = roundBlocks.map(function (b) { return { name:b.name, slots:b.slots, cls:b.cls }; });
+  if (!split) zoom.push({ name:"A5", slots:a5, cls:"dim" });
+  lane(split ? "一轮（A5 不在此条）" : "一轮含 A5", zoom);
+  gantt.appendChild(el("p", { class: "muted", text: zoom.map(function (b) { return b.name + " " + b.slots; }).join(" · ") }));
+}
+
+document.getElementById("modeSplit").addEventListener("click", function () {
+  this.setAttribute("aria-pressed", "true");
+  document.getElementById("modeOne").setAttribute("aria-pressed", "false");
+  draw(true);
+});
+document.getElementById("modeOne").addEventListener("click", function () {
+  this.setAttribute("aria-pressed", "true");
+  document.getElementById("modeSplit").setAttribute("aria-pressed", "false");
+  draw(false);
+});
+draw(true);
+
+document.querySelectorAll("nav button").forEach(function (btn) {
+  btn.addEventListener("click", function () {
+    document.querySelectorAll("nav button").forEach(function (b) { b.setAttribute("aria-pressed", "false"); });
+    btn.setAttribute("aria-pressed", "true");
+    document.querySelectorAll(".panel").forEach(function (p) { p.classList.remove("on"); });
+    document.getElementById(btn.getAttribute("data-tab")).classList.add("on");
+  });
+});
+</script>
+</main>
+</body>
+</html>

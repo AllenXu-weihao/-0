@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="608" viewBox="0 0 1000 608" role="img" aria-labelledby="title desc">
+  <title id="title">六段格式拼接的分档误码与配对翻转</title>
+  <desc id="desc">同一批历史样本浮点与拼接方案的逐位配对比较。每档 20 帧、480 比特。左向条表示浮点错而候选正确的数量，右向条表示浮点正确而候选错的数量。10 dB 固定回归的门槛为候选比浮点净增不超过 8 个错比特。</desc>
+  <rect width="1000" height="608" fill="#ffffff" />
+  <g font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif">
+    <text x="36" y="48" font-size="31" text-anchor="start" fill="#19383d" font-weight="700">六段格式拼接后的误码变化</text>
+    <text x="37" y="81" font-size="17" text-anchor="start" fill="#19383d" font-weight="400">历史回归集  ·  同帧比较 float 与六段拼接  ·  种子 1105  ·  每个背景 SNR 含 20 帧 / 480 bit</text>
+    <path d="M36 100H964" stroke="#b7c9c5" />
+    <text x="36" y="139" font-size="21" text-anchor="start" fill="#19383d" font-weight="700">A　同一组比特上，哪些判决发生了变化？</text>
+    <text x="75" y="178" font-size="16" text-anchor="middle" fill="#19383d" font-weight="400">SNR (dB)</text>
+    <text x="204" y="178" font-size="16" text-anchor="middle" fill="#19383d" font-weight="400">浮点错数</text>
+    <text x="319" y="178" font-size="16" text-anchor="middle" fill="#19383d" font-weight="400">拼接错数</text>
+    <text x="604" y="178" font-size="16" text-anchor="end" fill="#21766b" font-weight="700">← 由错变对</text>
+    <text x="685" y="178" font-size="16" text-anchor="start" fill="#ac4e28" font-weight="700">由对变错 →</text>
+    <text x="960" y="178" font-size="14" text-anchor="end" fill="#19383d" font-weight="400">单位：bit</text>
+    <path d="M36 231H964" stroke="#e0e8e6" />
+    <text x="75" y="218" font-size="18" text-anchor="middle" fill="#19383d" font-weight="400">0</text>
+    <text x="204" y="218" font-size="18" text-anchor="middle" fill="#19383d" font-weight="400">190</text>
+    <text x="319" y="218" font-size="18" text-anchor="middle" fill="#19383d" font-weight="400">201</text>
+    <rect x="470.51020408163265" y="205" width="174.48979591836735" height="14" fill="#21766b" />
+    <text x="463.51020408163265" y="218" font-size="16" text-anchor="end" fill="#21766b" font-weight="700">38</text>
+    <rect x="645" y="205" width="225.00000000000003" height="14" fill="#ac4e28" />
+    <text x="877.0" y="218" font-size="16" text-anchor="start" fill="#ac4e28" font-weight="700">49</text>
+    <path d="M36 273H964" stroke="#e0e8e6" />
+    <text x="75" y="260" font-size="18" text-anchor="middle" fill="#19383d" font-weight="400">10</text>
+    <text x="204" y="260" font-size="18" text-anchor="middle" fill="#19383d" font-weight="400">61</text>
+    <text x="319" y="260" font-size="18" text-anchor="middle" fill="#19383d" font-weight="400">67</text>
+    <rect x="612.8571428571429" y="247" width="32.142857142857146" height="14" fill="#21766b" />
+    <text x="605.8571428571429" y="260" font-size="16" text-anchor="end" fill="#21766b" font-weight="700">7</text>
+    <rect x="645" y="247" width="59.693877551020414" height="14" fill="#ac4e28" />
+    <text x="711.6938775510204" y="260" font-size="16" text-anchor="start" fill="#ac4e28" font-weight="700">13</text>
+    <path d="M36 315H964" stroke="#e0e8e6" />
+    <text x="75" y="302" font-size="18" text-anchor="middle" fill="#19383d" font-weight="400">20</text>
+    <text x="204" y="302" font-size="18" text-anchor="middle" fill="#19383d" font-weight="400">5</text>
+    <text x="319" y="302" font-size="18" text-anchor="middle" fill="#19383d" font-weight="400">7</text>
+    <rect x="640.4081632653061" y="289" width="4.591836734693878" height="14" fill="#21766b" />
+    <text x="633.4081632653061" y="302" font-size="16" text-anchor="end" fill="#21766b" font-weight="700">1</text>
+    <rect x="645" y="289" width="13.775510204081634" height="14" fill="#ac4e28" />
+    <text x="665.7755102040817" y="302" font-size="16" text-anchor="start" fill="#ac4e28" font-weight="700">3</text>
+    <path d="M36 357H964" stroke="#e0e8e6" />
+    <text x="75" y="344" font-size="18" text-anchor="middle" fill="#19383d" font-weight="400">30</text>
+    <text x="204" y="344" font-size="18" text-anchor="middle" fill="#19383d" font-weight="400">0</text>
+    <text x="319" y="344" font-size="18" text-anchor="middle" fill="#19383d" font-weight="400">0</text>
+    <rect x="645.0" y="331" width="0.0" height="14" fill="#21766b" />
+    <text x="638.0" y="344" font-size="16" text-anchor="end" fill="#21766b" font-weight="700">0</text>
+    <rect x="645.0" y="331" width="0.0" height="14" fill="#ac4e28" />
+    <text x="652.0" y="344" font-size="16" text-anchor="start" fill="#ac4e28" font-weight="700">0</text>
+    <path d="M645 192V353" stroke="#8fa5a3" />
+    <text x="36" y="403" font-size="21" text-anchor="start" fill="#19383d" font-weight="700">B　10 dB 回归判据：相比浮点，候选最多多错 8 bit</text>
+    <path d="M130.0 481H870.0" stroke="#97aba7" stroke-width="2" />
+    <path d="M130.0 481V489" stroke="#97aba7" />
+    <text x="130.0" y="510" font-size="15" text-anchor="middle" fill="#19383d" font-weight="400">0</text>
+    <path d="M204.0 481V489" stroke="#97aba7" />
+    <text x="204.0" y="510" font-size="15" text-anchor="middle" fill="#19383d" font-weight="400">1</text>
+    <path d="M278.0 481V489" stroke="#97aba7" />
+    <text x="278.0" y="510" font-size="15" text-anchor="middle" fill="#19383d" font-weight="400">2</text>
+    <path d="M352.0 481V489" stroke="#97aba7" />
+    <text x="352.0" y="510" font-size="15" text-anchor="middle" fill="#19383d" font-weight="400">3</text>
+    <path d="M426.0 481V489" stroke="#97aba7" />
+    <text x="426.0" y="510" font-size="15" text-anchor="middle" fill="#19383d" font-weight="400">4</text>
+    <path d="M500.0 481V489" stroke="#97aba7" />
+    <text x="500.0" y="510" font-size="15" text-anchor="middle" fill="#19383d" font-weight="400">5</text>
+    <path d="M574.0 481V489" stroke="#97aba7" />
+    <text x="574.0" y="510" font-size="15" text-anchor="middle" fill="#19383d" font-weight="400">6</text>
+    <path d="M648.0 481V489" stroke="#97aba7" />
+    <text x="648.0" y="510" font-size="15" text-anchor="middle" fill="#19383d" font-weight="400">7</text>
+    <path d="M722.0 481V489" stroke="#97aba7" />
+    <text x="722.0" y="510" font-size="15" text-anchor="middle" fill="#19383d" font-weight="400">8</text>
+    <path d="M796.0 481V489" stroke="#97aba7" />
+    <text x="796.0" y="510" font-size="15" text-anchor="middle" fill="#19383d" font-weight="400">9</text>
+    <path d="M870.0 481V489" stroke="#97aba7" />
+    <text x="870.0" y="510" font-size="15" text-anchor="middle" fill="#19383d" font-weight="400">10</text>
+    <path d="M722.0 445V482" stroke="#566967" stroke-dasharray="4 3" stroke-width="2" />
+    <text x="722.0" y="438" font-size="16" text-anchor="middle" fill="#19383d" font-weight="400">回归上限 +8</text>
+    <circle cx="574.0" cy="481" r="7" fill="#ac4e28" />
+    <text x="574.0" y="465" font-size="17" text-anchor="middle" fill="#ac4e28" font-weight="700">实测净增 +6</text>
+    <text x="500" y="539" font-size="16" text-anchor="middle" fill="#19383d" font-weight="400">净新增错比特数（候选 − 浮点）</text>
+    <text x="36" y="573" font-size="16" text-anchor="start" fill="#19383d" font-weight="400">10 dB：13 个由对变错，7 个由错变对，净差 +6/480，ΔBER = +1.25 个百分点。</text>
+    <text x="36" y="597" font-size="15" text-anchor="start" fill="#19383d" font-weight="400">门槛适用于这批固定样本。独立样本的总体性能需另用预留种子和配对置信上界验收。</text>
+  </g>
+</svg>

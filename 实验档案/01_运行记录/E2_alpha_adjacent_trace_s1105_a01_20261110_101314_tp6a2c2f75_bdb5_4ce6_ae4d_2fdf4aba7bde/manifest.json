@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "run_id": "E2_alpha_adjacent_trace_s1105_a01_20261110_101314_tp6a2c2f75_bdb5_4ce6_ae4d_2fdf4aba7bde",
+  "experiment": "E2",
+  "label": "alpha_adjacent_trace",
+  "attempt": 1,
+  "previous_run_id": "E2_alpha_s1105_a01_20261109_151630_tp000a4ea5_7e93_49b9_93c9_dae10b3a38fb",
+  "seed": 1105,
+  "status": "COMPLETE",
+  "matlab_version": "25.2.0.2998904 (R2025b)",
+  "machine": "PCWIN64",
+  "created_utc": "2026-11-10 02:13:15",
+  "deployment_sha256": "c6f359f279328c7bce5a854e46e7337004f802ad4344b1560943ac02661b754f",
+  "mimo_sha256": "83371d309eec814813a118a00666b01d0fb28ab33723dcd6c005d21cff31ce9d",
+  "driver_revision": "experiments/exp_sort.m + run_edge_experiment.m + archive_edge_runs.m; trace helpers added but disabled",
+  "entry_command": "S=load(archived inputs.mat); runs=exp_sort('alpha',[21 12;20 11;19 10],S.cases); archive_edge_runs(R,runs)",
+  "dataset_role": "回归",
+  "cases_path": "实验档案/01_运行记录/E2_alpha_s1105_a01_20261109_151630_tp000a4ea5_7e93_49b9_93c9_dae10b3a38fb/raw/20261109_151811_alpha_tpf0c841e9_c436_476f_9e66_299c79cabd66/inputs.mat",
+  "reference": "MIMO float on archived cases",
+  "candidate_ids": [
+    "alpha_W21_F12",
+    "alpha_W20_F11",
+    "alpha_W19_F10"
+  ],
+  "matrix_arithmetic": "only alpha quantized; ordered MAC observe off; default floating matrix product",
+  "architecture": "instrumented MATLAB, single edge, trace off for the bridge",
+  "decision_rule": "F=12 and F=10 must match the previous E2 frame table before F=11 is interpreted",
+  "raw_sources": [
+    "raw/trace/透明.txt",
+    "raw/trace/idx摘要.csv",
+    "candidates/alpha_W20_F11/per_frame.csv"
+  ],
+  "figures": [
+    "实验档案/03_图表/E2_alpha_adjacent_trace_s1105_a01_20261110_101314_tp6a2c2f75_bdb5_4ce6_ae4d_2fdf4aba7bde/单边扫宽/单边扫宽.svg"
+  ],
+  "report": "实验档案/04_分析报告/E2_alpha_adjacent_trace_s1105_a01_20261110_101314_tp6a2c2f75_bdb5_4ce6_ae4d_2fdf4aba7bde.md",
+  "error": ""
+}

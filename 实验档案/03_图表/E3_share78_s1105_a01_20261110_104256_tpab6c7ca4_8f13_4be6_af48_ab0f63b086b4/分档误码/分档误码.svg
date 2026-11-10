@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="320" viewBox="0 0 680 320">
+  <rect width="680" height="320" fill="#f7f5f2"/>
+  <text x="36" y="28" fill="#1c1b19" font-family="Segoe UI, sans-serif" font-size="16">80 'ïÍP 1105</text>
+  <text x="36" y="48" fill="#5c5852" font-family="Segoe UI, sans-serif" font-size="12">Ì¾¦ 2568 bit 2727 bit 297µt/åájÔ 480 bit Ì„</text>
+  <g fill="#1c1b19" font-family="Segoe UI, sans-serif" font-size="12">
+    <text x="28" y="78" text-anchor="end">200</text>
+    <text x="28" y="168" text-anchor="end">100</text>
+    <text x="28" y="258" text-anchor="end">0</text>
+  </g>
+  <line x1="36" y1="72" x2="640" y2="72" stroke="#d9d3cb"/>
+  <line x1="36" y1="162" x2="640" y2="162" stroke="#d9d3cb"/>
+  <line x1="36" y1="252" x2="640" y2="252" stroke="#1c1b19"/>
+  <g>
+    <rect x="70" y="81.9" width="28" height="170.1" fill="#1c1b19"/>
+    <rect x="102" y="82.8" width="28" height="169.2" fill="#1d4e89"/>
+    <rect x="134" y="81.0" width="28" height="171.0" fill="#9b3b32"/>
+    <rect x="210" y="197.1" width="28" height="54.9" fill="#1c1b19"/>
+    <rect x="242" y="184.5" width="28" height="67.5" fill="#1d4e89"/>
+    <rect x="274" y="180.0" width="28" height="72.0" fill="#9b3b32"/>
+    <rect x="350" y="247.5" width="28" height="4.5" fill="#1c1b19"/>
+    <rect x="382" y="244.8" width="28" height="7.2" fill="#1d4e89"/>
+    <rect x="414" y="233.1" width="28" height="18.9" fill="#9b3b32"/>
+    <rect x="490" y="252" width="28" height="0" fill="#1c1b19"/>
+    <rect x="522" y="252" width="28" height="0" fill="#1d4e89"/>
+    <rect x="554" y="247.5" width="28" height="4.5" fill="#9b3b32"/>
+  </g>
+  <g fill="#1c1b19" font-family="Segoe UI, sans-serif" font-size="12" text-anchor="middle">
+    <text x="116" y="272">0 dB</text>
+    <text x="256" y="272">10 dB</text>
+    <text x="396" y="272">20 dB</text>
+    <text x="536" y="272">30 dB</text>
+  </g>
+  <g font-family="Segoe UI, sans-serif" font-size="12">
+    <rect x="70" y="292" width="12" height="12" fill="#1c1b19"/>
+    <text x="88" y="303" fill="#1c1b19">Ì¾¦</text>
+    <rect x="160" y="292" width="12" height="12" fill="#1d4e89"/>
+    <text x="178" y="303" fill="#1c1b19">8 bit96%</text>
+    <rect x="280" y="292" width="12" height="12" fill="#9b3b32"/>
+    <text x="298" y="303" fill="#1c1b19">7 bit78%</text>
+  </g>
+</svg>

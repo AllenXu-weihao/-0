@@ -1,10 +1,10 @@
 # MIMO v2 MATLAB 位宽实验（2026-11-05）
 
-状态：代码已编写并做静态检查；本机无 MATLAB，尚未执行 MATLAB 测试与BER实验。不可当作已验证的HDL黄金。
+已有 80 帧 MATLAB 回归归档。新实验以[论文 11 的图表和验收规格](文档/matlab建模文档/11_四流64QAM迭代检测器定点化论文梗概.md)及[实验档案执行入口](实验档案/README.md)为准；下文记录早期驱动用法。
 
 原始 `MIMO.m` 和 `deployment.mat` 保持不变。`experiments/mimo_instrumented.m` 为原代码的派生插桩版本；原文件SHA256记录在 `experiments/SOURCE_SHA256.txt`。不需要Fixed-Point Designer。建议 MATLAB R2021b 或更新版本，实际兼容性待执行确认。
 
-## 第一次运行
+## 早期单边驱动示例
 
 在 MATLAB 切换至本文件夹：
 

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "run_id": "E3_share78_s1105_a01_20261110_104256_tpab6c7ca4_8f13_4be6_af48_ab0f63b086b4",
+  "experiment": "E3",
+  "label": "share78",
+  "attempt": 1,
+  "previous_run_id": "E3_share78_s1105_a01_20261110_103741_tp948c2a1c_4c06_40b1_ab73_bbbcf2ca590a",
+  "seed": 1105,
+  "status": "COMPLETE",
+  "matlab_version": "25.2.0.2998904 (R2025b)",
+  "machine": "PCWIN64",
+  "created_utc": "2026-11-10 02:42:56",
+  "deployment_sha256": "c6f359f279328c7bce5a854e46e7337004f802ad4344b1560943ac02661b754f",
+  "mimo_sha256": "83371d309eec814813a118a00666b01d0fb28ab33723dcd6c005d21cff31ce9d",
+  "driver_revision": "experiments/run_share78.m",
+  "entry_command": "run_share78",
+  "dataset_role": "回归",
+  "cases_path": "实验档案/01_运行记录/E2_alpha_s1105_a01_20261109_151630_tp000a4ea5_7e93_49b9_93c9_dae10b3a38fb/raw/20261109_151811_alpha_tpf0c841e9_c436_476f_9e66_299c79cabd66/inputs.mat",
+  "reference": "MIMO float on archived cases",
+  "candidate_ids": [
+    "peak8",
+    "peak7"
+  ],
+  "matrix_arithmetic": "ordered product-then-acc when product or acc format is set; MATLAB round then saturate",
+  "architecture": "instrumented MATLAB joint formats; mix_a and frontend_score stay double; input_nv and input_iv stay double",
+  "decision_rule": "no pass line and no frozen width",
+  "raw_sources": [
+    "raw/summary.csv",
+    "raw/per_frame.csv"
+  ],
+  "figures": [
+    "实验档案/03_图表/E3_share78_s1105_a01_20261110_104256_tpab6c7ca4_8f13_4be6_af48_ab0f63b086b4/分档误码/分档误码.svg"
+  ],
+  "report": "实验档案/04_分析报告/E3_share78_s1105_a01_20261110_104256_tpab6c7ca4_8f13_4be6_af48_ab0f63b086b4.md",
+  "error": ""
+}

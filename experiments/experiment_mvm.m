@@ -4,7 +4,8 @@ global MIMO_EXPERIMENT
 x=qedge([stage '_x'],x);A=qedge([stage '_w'],A);
 f=MIMO_EXPERIMENT.formats;
 ordered=isfield(f,[stage '_product'])||isfield(f,[stage '_acc']);
-if ~ordered,y=x*A;else
+observe=isfield(MIMO_EXPERIMENT,'orderedObserve') && MIMO_EXPERIMENT.orderedObserve;
+if ~ordered && ~observe,y=x*A;else
  y=zeros(size(x,1),size(A,2));
  for j=1:size(A,2)
   ids=find(A(:,j)~=0);a=zeros(size(x,1),1);

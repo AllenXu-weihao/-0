@@ -51,9 +51,16 @@ if strcmp(task,'channel')
  result.estimate=sum(prob.*c,3);result.probability=prob;
 else
  assert(isfield(d,'candidateBit'),'Prepared MIMO input must provide constellation bit labels.');
- cb=permute(d.candidateBit,[1 3 2 4]);llr=zeros(B,4,6);
- for bit=1:6,a=last;b=last;a(cb(:,:,:,bit)~=0)=-1e6;b(cb(:,:,:,bit)==0)=-1e6;llr(:,:,bit)=max(a,[],3)-max(b,[],3);end
+ cb=permute(d.candidateBit,[1 3 2 4]);llr=zeros(B,4,6);max0=[];max1=[];
+ if tracing()
+  max0=zeros(B,4,6);max1=zeros(B,4,6);
+  for bit=1:6,a=last;b=last;a(cb(:,:,:,bit)~=0)=-1e6;b(cb(:,:,:,bit)==0)=-1e6;max0(:,:,bit)=max(a,[],3);max1(:,:,bit)=max(b,[],3);llr(:,:,bit)=max0(:,:,bit)-max1(:,:,bit);end
+ else
+  for bit=1:6,a=last;b=last;a(cb(:,:,:,bit)~=0)=-1e6;b(cb(:,:,:,bit)==0)=-1e6;llr(:,:,bit)=max(a,[],3)-max(b,[],3);end
+ end
+ unclipped=llr;
  result.llr=reshape(permute(max(-20,min(20,llr)),[1 3 2]),B,24);result.llr=qedge('llr',result.llr);result.bits=result.llr<0;
+ if tracing(),trace_readout(unclipped,result.llr,result.bits,max0,max1);end
 end
 end
 
@@ -114,6 +121,7 @@ for b=1:B
  for t=1:steps
   alpha=reshape(vf_infer__mv('A2',[beta local]),L,P).';alpha=alpha-max(alpha,[],2);
   if strcmp(task,'mimo'),alpha=alpha*cfg.mimoAlphaScale;end
+  alphaPre=alpha;
   alpha=qedge('alpha',alpha);
   [a,idx]=sort(alpha,2,'descend');cs=zeros(P,L);
   for j=1:P,cs(j,:)=c(pv(j),idx(j,:));end
@@ -151,7 +159,8 @@ for b=1:B
   for j=1:P,raw(j,idx(j,:))=score(j,:);end
   raw=raw-max(raw,[],2);raw=reshape(raw.',1,[]);
   if strcmp(task,'mimo'),raw=raw*cfg.mimoBetaScale;end
-  raw=qedge('raw',raw);rate=qedge('rate',p.runtime.rate);d0=qedge('damp_product_old',(1-rate)*beta);d1=qedge('damp_product_new',rate*raw);beta=qedge('beta',qedge('damp_sum',d0+d1));
+  raw=qedge('raw',raw);rate=qedge('rate',p.runtime.rate);betaBefore=beta;d0=qedge('damp_product_old',(1-rate)*beta);d1=qedge('damp_product_new',rate*raw);beta=qedge('beta',qedge('damp_sum',d0+d1));
+  if tracing(),[~,idxPre]=sort(alphaPre,2,'descend');trace_iter(t,alphaPre,alpha,idxPre,idx,raw,betaBefore,beta);end
   bi=beta;li=local;
   if strcmp(task,'mimo'),bi=bi*cfg.mimoPosteriorBetaScale;li=li*cfg.mimoPosteriorPriorScale;end
   z=reshape(vf_infer__mv('A5',[bi li]),L,4).';output(b,t,:,:)=reshape(z,1,1,4,L);
@@ -286,4 +295,41 @@ a = log(1-epsilon)-log(pi*noiseVar)-abs(residual).^2/noiseVar;
 b = log(epsilon)-log(pi*impulseVar)-abs(residual).^2/impulseVar;
 peak = max(a,b);
 value = peak+log(exp(a-peak)+exp(b-peak));
+end
+
+function tf=tracing()
+global MIMO_EXPERIMENT
+tf=isstruct(MIMO_EXPERIMENT) && isfield(MIMO_EXPERIMENT,'trace') && isstruct(MIMO_EXPERIMENT.trace) && MIMO_EXPERIMENT.trace.enabled;
+end
+function trace_iter(roundIndex,pre,post,idxPre,idx,raw,betaBefore,betaAfter)
+global MIMO_EXPERIMENT
+rec.alphaPre=pre;rec.alphaPost=post;rec.idxPre=idxPre;rec.idx=idx;rec.raw=raw;
+rec.betaBefore=betaBefore;rec.betaAfter=betaAfter;
+rec.tiePre=adjacent_ties(pre,idxPre);rec.tiePost=adjacent_ties(post,idx);
+rec.newEqualPairs=new_equal_pairs(pre,post);
+if ~isfield(MIMO_EXPERIMENT.traceLog,'round') || isempty(MIMO_EXPERIMENT.traceLog.round)
+ MIMO_EXPERIMENT.traceLog.round=repmat(rec,1,3);
+end
+MIMO_EXPERIMENT.traceLog.round(roundIndex)=rec;
+end
+function trace_readout(unclipped,llr,bits,max0,max1)
+global MIMO_EXPERIMENT
+MIMO_EXPERIMENT.traceLog.readout=struct('unclipped',unclipped,'llr',llr,'bits',bits,'max0',max0,'max1',max1);
+end
+function n=adjacent_ties(values,idx)
+sorted=zeros(size(values));
+for j=1:size(values,1),sorted(j,:)=values(j,idx(j,:));end
+n=sum(sorted(:,1:end-1)==sorted(:,2:end),2);
+end
+function n=new_equal_pairs(pre,post)
+n=zeros(size(pre,1),1);
+for j=1:size(pre,1)
+ count=0;
+ for a=1:size(pre,2)-1
+  for b=a+1:size(pre,2)
+   if pre(j,a)~=pre(j,b) && post(j,a)==post(j,b),count=count+1;end
+  end
+ end
+ n(j)=count;
+end
 end

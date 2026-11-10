@@ -1,0 +1,5 @@
+﻿background_snr_db,frames,bits,ref_errors,candidate_errors,correct_to_wrong,wrong_to_correct,net_new_errors,delta_ber_pp
+0,20,480,190,201,49,38,11,2.291667
+10,20,480,61,67,13,7,6,1.25
+20,20,480,5,7,3,1,2,0.416667
+30,20,480,0,0,0,0,0,0.0

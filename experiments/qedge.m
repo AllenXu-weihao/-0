@@ -12,7 +12,18 @@ if isfield(st.formats,id)
 end
 v=[real(x(:));imag(x(:))]; if isreal(x),v=real(x(:));end
 if ~isfield(st.stats,id),st.stats.(id)=struct('calls',0,'elements',0,'minimum',Inf,'maximum',-Inf,'saturations',0,'maxError',0);end
-a=st.stats.(id);a.calls=a.calls+1;a.elements=a.elements+numel(v);a.minimum=min(a.minimum,min(v));a.maximum=max(a.maximum,max(v));a.saturations=a.saturations+sat;a.maxError=max(a.maxError,max(abs(y(:)-x(:))));st.stats.(id)=a;
+a=st.stats.(id);a.calls=a.calls+1;a.elements=a.elements+numel(v);a.minimum=min(a.minimum,min(v));a.maximum=max(a.maximum,max(v));a.saturations=a.saturations+sat;a.maxError=max(a.maxError,max(abs(y(:)-x(:))));
+if isfield(st,'logEdges') && numel(st.logEdges)==2
+ loB=st.logEdges(1);hiB=st.logEdges(2);nB=hiB-loB+1;
+ if ~isfield(a,'logCount'),a.logCount=zeros(1,nB);a.logUnder=0;a.logOver=0;a.logZero=0;end
+ mag=abs(v);a.logZero=a.logZero+nnz(mag==0);nz=mag>0;
+ if any(nz)
+  b=floor(log2(mag(nz)));a.logUnder=a.logUnder+nnz(b<loB);a.logOver=a.logOver+nnz(b>hiB);
+  b=b(b>=loB & b<=hiB);
+  if ~isempty(b),a.logCount=a.logCount+accumarray(b(:)-loB+1,1,[nB,1]).';end
+ end
+end
+st.stats.(id)=a;
 MIMO_EXPERIMENT=st;
 end
 function [y,s]=one(x,f)

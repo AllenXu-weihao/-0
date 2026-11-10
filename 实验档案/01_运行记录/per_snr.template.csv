@@ -1,0 +1,1 @@
+run_id,candidate_id,seed,snr_db,n_frames,n_bits,reference_errors,candidate_errors,became_wrong,became_correct,disagreements,saturations,reference_ber,candidate_ber,delta_ber

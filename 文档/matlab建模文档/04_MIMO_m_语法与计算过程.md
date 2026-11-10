@@ -1,6 +1,6 @@
 # MIMO.m 语法说明 × 计算过程（与源码一一对应）
 
-源文件：[../../MIMO_工程管理/MIMO_v2_matlab/MIMO.m](../../../MIMO_工程管理/MIMO_v2_matlab/MIMO.m)，行号与该文件一致。  
+源文件：[MIMO.m](../../MIMO.m)，行号与该文件一致。  
 白话「做什么」见 [03_MIMO_m_中英对照.md](03_MIMO_m_中英对照.md)。本文只讲：**这一行 MATLAB 怎么读、这一行算了什么。**
 
 通例：
@@ -8,9 +8,11 @@
 - `%` 到行末是注释，不执行。
 - 一行里逗号 `,` 是语句分隔（和分号 `;` 一样断开语句；分号还抑制命令窗打印）。
 - `end` 结束 `function` / `if` / `for`。
-- `'` 是共轭转置；`.'` 是不共轭转置。复数信道必须用 `.'`，否则符号翻掉。
+- `'` 是共轭转置；`.'` 是不共轭转置。第 27、31 行的 y 仅换行列方向，用不共轭转置；第 197–198 行的 LMMSE 法方程使用 H 的共轭转置。
 - `A(i,:)` 第 i 行；`A(:,j)` 第 j 列；`(:)` 按列拉成一列。
 - `max(X,[],2)` 沿第 2 维（每行）；`max(...,[],'all')` 全体一个数。空的 `[]` 是 MATLAB 指定「沿哪一维」的占位。
+
+源码每轮调用 A5，现有控制器只在末轮请求 A5。部署范围与验证计划见[11 论文主稿](11_四流64QAM迭代检测器定点化论文梗概.md)。
 
 本包实际路径：`task='mimo'`，`steps=3`，`P=20`，`L=9`。标了「本包不走」的分支仍按语法译出。
 
@@ -18,7 +20,7 @@
 
 ## 行 1–13 入口 `MIMO`
 
-```1:13:../../MIMO_工程管理/MIMO_v2_matlab/MIMO.m
+```matlab
 function [result,audit]=MIMO(input,mode)
 % ... 文件头注释 ...
 if nargin<2,mode='float';end
@@ -74,7 +76,7 @@ end
 
 ## 行 25–35 `frontend`
 
-```25:35:../../MIMO_工程管理/MIMO_v2_matlab/MIMO.m
+```matlab
 function d=frontend(task,input,p)
 y=double(input.y(:).');assert(numel(y)==8);nv=double(input.noiseVar);iv=double(input.impulseExtraVar);
 assert(isscalar(nv)&&isscalar(iv)&&isfinite(nv)&&isfinite(iv)&&nv>0&&iv>0);
@@ -149,7 +151,7 @@ end
 | 53 | `llr(:,:,bit)=max(a,[],3)-max(b,[],3);` | 沿候选维（第 3 维）取最大再相减。 | max-log LLR：\(\max_{s:b=0} z - \max_{s:b=1} z\)。 |
 | 54 | `max(-20,min(20,llr))` | 逐元素钳位。先 `min(20,·)` 再 `max(-20,·)`。 | 限幅 ±20。 |
 | 54 | `permute(...,[1 3 2])` 再 `reshape(...,B,24)` | 维顺序变成 批 × bit × 符号，再拉成 批 × 24。 | 符号 1 的 6 bit、符号 2 的 6 bit…… |
-| 54 | `result.bits=result.llr<0;` | 比较得到逻辑数组。 | LLR 负判 1（与「负对数似然比」约定一致）。 |
+| 54 | `result.bits=result.llr<0;` | 比较得到逻辑数组。 | LLR 取“0 组最高分减 1 组最高分”；负值判 1，零值判 0。 |
 
 ---
 
@@ -163,7 +165,7 @@ end
 | 65 | `[xi,ins]=pkg_vf_quantize(x,inputBits,12);` | 24 位、12 小数。 | \( x_i = \mathrm{sat}(\mathrm{round}(x\cdot 2^{12})) \)，整数。 |
 | 65 | `[wi,ws]=pkg_vf_quantize(A,18,14);` | 18 位、14 小数。 | 权重整数。 |
 | 66 | `acc=xi*wi;` | MATLAB `*` 是矩阵乘。两边已是整数，乘积仍双精度里的整数。 | 整数 MAC。 |
-| 67 | `assert(all(acc(:)>=-2^(W-1) & acc(:)<2^(W-1)),'...');` | `all` 全部真；`&` 逐元素与（两边都算）。上界是**开区间** `< 2^{W-1}`。 | 累加器不溢出。 |
+| 67 | `assert(all(acc(:)>=-2^(W-1) & acc(:)<2^(W-1)),'...');` | `all` 全部真；`&` 逐元素与（两边都算）。上界是**开区间** `< 2^{W-1}`。 | 检查本次列末结果是否位于所配有符号范围；逐项部分和峰值另由有序 MAC 观察。 |
 | 68 | `pkg_vf_quantize(acc/2^26, outputBits, 12)` | `/2^26`：输入 12 小数 + 权重 14 小数 = 26，先对齐成「还没量化的实数」。再按 12 小数收成输出整数。 | 相当于右移对齐后再量化。 |
 | 68 | `y=yi/2^12;` | 整数变回实数。 | 输出 S24.12 的实数值。 |
 | 69–72 | `audit=struct(...)` | 续行 `...` 表示下一行接着写。 | 记饱和次数、最大输入输出、相对纯浮点 `x*A` 的误差。 |
@@ -178,7 +180,7 @@ end
 | 80 | `assert(bits>=2 && bits<=52 && fraction>=0 && fraction<bits);` | 小数位必须少于总位（至少留符号位）。 | 非法字长停。 |
 | 81 | `scaled=round(double(x)*2^fraction);` | MATLAB `round`：最近整数，**半数远离 0**（+1.5→2，-1.5→-2）。 | 定点化。 |
 | 81 | `lo=-2^(bits-1); hi=2^(bits-1)-1;` | 有符号整数范围。 | 例：24 bit → [-2^23, 2^23-1]。 |
-| 82 | `stats.saturations=nnz(scaled<lo|scaled>hi);` | `\|` 逐元素或；`nnz` 非零个数（逻辑里即「真」的个数）。 | 饱和次数。 |
+| 82 | `stats.saturations=nnz(scaled<lo\|scaled>hi);` | `\|` 逐元素或；`nnz` 非零个数（逻辑里即「真」的个数）。 | 饱和次数。 |
 | 82 | `q=max(lo,min(hi,scaled));` | 钳位。 | 饱和后的整数。 |
 | 83 | `stats.maxAbsError=max(abs(q(:)/2^fraction-double(x(:))),[],'omitnan');` | `'omitnan'` 忽略 NaN。 | 量化相对原浮点的最大绝对误差。 |
 
@@ -301,8 +303,8 @@ end
 | 191–195 | `Nt=cfg.Nt;` 等 | 从配置取标量。 | 通常 Nt=4，L=9，ε、残差权重 0.25、覆盖间隙 2。 |
 | 197 | `A=H'*H+noiseVar*eye(Nt);` | `'` **共轭**转置。`eye(Nt)` 单位阵。 | 4×4：Gram + σ²I。 |
 | 198 | `xhat=A\(H'*y);` | `\` 解线性方程（左除），比 `inv(A)*` 稳。 | LMMSE：\(\hat x=(H^H H+\sigma^2 I)^{-1} H^H y\)，4×1。 |
-| 199 | `covariance=A\eye(Nt);` | 等于 A 的逆。 | 误差协方差 4×4。 |
-| 200 | `variance=max(real(diag(covariance)),1e-8);` | `diag` 取对角；`real` 丢掉数值虚部；`max` 与 1e-8。 | 每符号方差，钳一个地板防除零。 |
+| 199 | `covariance=A\eye(Nt);` | 等于 A 的逆。 | 得到 4×4 的逆矩阵，下一行取其对角作为评分尺度。 |
+| 200 | `variance=max(real(diag(covariance)),1e-8);` | `diag` 取对角；`real` 丢掉数值虚部；`max` 与 1e-8。 | 第 v 个对角元素实部取下界 1e−8，作为该流距离评分的尺度。 |
 | 201–205 | `zeros(...)` | 预分配。 | 64×4 分数；9×4 输出。 |
 | 207 | `for v=1:Nt` | 每个发符号单独挑 9 点。 | — |
 | 208 | `scoreLmmse=-abs(constellation-xhat(v)).^2./(2*variance(v));` | `constellation` 64×1 减标量，64 个距离。 | 离粗估计越近分越高（高斯对数似然，差一个常数）。 |
@@ -368,3 +370,5 @@ end
 | 每轮 A5 入 | `[bi li]` | 1×216 | 154 |
 | 每轮后验 | `z` | 4×9 | 154 |
 | 读出 | `llr` | 1×24 | 54 |
+
+**两种 idx，两个地址空间。** 第 31–34 行的 idx 是 64 点星座下标（1…64），以零基表示需 6 位。第 115 行 sort 的 idx 是每口的 9 槽排列（1…9），以零基表示需 4 位；第 148 行按后者散回。接口对拍时分别保存候选身份与排序索引。第 54 行输出按流排列，每流依次存 I 轴三位与 Q 轴三位的六个软值，共占 24 个输出地址。
