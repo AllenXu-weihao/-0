@@ -1,0 +1,4 @@
+format,round,portRounds,idxDiffPorts,maxAbsBetaDiff,firstCase,firstRound,firstPort,firstSlot,hardCase
+W15_15_15,1,1600,126,7.7974524,1,1,9,5,1
+W15_15_15,2,1600,322,14.11869,1,1,9,5,1
+W15_15_15,3,1600,450,18.540432,1,1,9,5,1

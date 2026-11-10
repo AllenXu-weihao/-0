@@ -1,0 +1,2 @@
+不量化时开 trace 与关 trace 的最大 LLR 差 0。
+W15_15_15 开 trace 与关 trace 的最大 LLR 差 0，硬判不同帧数 0。

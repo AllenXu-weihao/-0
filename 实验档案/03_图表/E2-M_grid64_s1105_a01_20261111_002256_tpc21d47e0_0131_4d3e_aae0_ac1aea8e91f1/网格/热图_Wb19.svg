@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns='http://www.w3.org/2000/svg' width='640' height='560' viewBox='0 0 640 560'>
+<title>Wβ=19 的 10 dB 错数</title>
+<rect width='640' height='560' fill='white'/>
+<g font-family='Microsoft YaHei, sans-serif' fill='#19383d'>
+<text x='32' y='40' font-size='24'>10 dB 错数 · Wβ = 19</text>
+<text x='32' y='68' font-size='14'>横轴 Wα，纵轴 Wraw。门槛 69。粗框是三条边总宽相同的格子。</text>
+<text x='318' y='530' font-size='15' text-anchor='middle'>Wα</text>
+<text x='28' y='300' font-size='15' text-anchor='middle' transform='rotate(-90 28 300)'>Wraw</text>
+<text x='165.0' y='96' font-size='15' text-anchor='middle'>15</text>
+<text x='275.0' y='96' font-size='15' text-anchor='middle'>17</text>
+<text x='385.0' y='96' font-size='15' text-anchor='middle'>19</text>
+<text x='495.0' y='96' font-size='15' text-anchor='middle'>21</text>
+<text x='98' y='160.0' font-size='15' text-anchor='end'>21</text>
+<text x='98' y='270.0' font-size='15' text-anchor='end'>19</text>
+<text x='98' y='380.0' font-size='15' text-anchor='end'>17</text>
+<text x='98' y='490.0' font-size='15' text-anchor='end'>15</text>
+<rect x='110' y='100' width='102' height='102' fill='#d7e4dc' stroke='#19383d' stroke-width='1'/>
+<text x='161.0' y='148' font-size='28' text-anchor='middle'>61</text>
+<rect x='110' y='210' width='102' height='102' fill='#d7e4dc' stroke='#19383d' stroke-width='1'/>
+<text x='161.0' y='258' font-size='28' text-anchor='middle'>61</text>
+<rect x='110' y='320' width='102' height='102' fill='#d7e4dc' stroke='#19383d' stroke-width='1'/>
+<text x='161.0' y='368' font-size='28' text-anchor='middle'>61</text>
+<rect x='110' y='430' width='102' height='102' fill='#d7e4dc' stroke='#19383d' stroke-width='1'/>
+<text x='161.0' y='478' font-size='28' text-anchor='middle'>61</text>
+<rect x='220' y='100' width='102' height='102' fill='#d7e4dc' stroke='#19383d' stroke-width='1'/>
+<text x='271.0' y='148' font-size='28' text-anchor='middle'>61</text>
+<rect x='220' y='210' width='102' height='102' fill='#d7e4dc' stroke='#19383d' stroke-width='1'/>
+<text x='271.0' y='258' font-size='28' text-anchor='middle'>61</text>
+<rect x='220' y='320' width='102' height='102' fill='#d7e4dc' stroke='#19383d' stroke-width='1'/>
+<text x='271.0' y='368' font-size='28' text-anchor='middle'>61</text>
+<rect x='220' y='430' width='102' height='102' fill='#d7e4dc' stroke='#19383d' stroke-width='1'/>
+<text x='271.0' y='478' font-size='28' text-anchor='middle'>61</text>
+<rect x='330' y='100' width='102' height='102' fill='#d7e4dc' stroke='#19383d' stroke-width='1'/>
+<text x='381.0' y='148' font-size='28' text-anchor='middle'>61</text>
+<rect x='330' y='210' width='102' height='102' fill='#d7e4dc' stroke='#19383d' stroke-width='1'/>
+<rect x='334' y='214' width='94' height='94' fill='none' stroke='#19383d' stroke-width='3'/>
+<text x='381.0' y='258' font-size='28' text-anchor='middle'>61</text>
+<text x='381.0' y='284' font-size='13' text-anchor='middle'>统一</text>
+<rect x='330' y='320' width='102' height='102' fill='#d7e4dc' stroke='#19383d' stroke-width='1'/>
+<text x='381.0' y='368' font-size='28' text-anchor='middle'>61</text>
+<rect x='330' y='430' width='102' height='102' fill='#d7e4dc' stroke='#19383d' stroke-width='1'/>
+<text x='381.0' y='478' font-size='28' text-anchor='middle'>61</text>
+<rect x='440' y='100' width='102' height='102' fill='#d7e4dc' stroke='#19383d' stroke-width='1'/>
+<text x='491.0' y='148' font-size='28' text-anchor='middle'>61</text>
+<rect x='440' y='210' width='102' height='102' fill='#d7e4dc' stroke='#19383d' stroke-width='1'/>
+<text x='491.0' y='258' font-size='28' text-anchor='middle'>61</text>
+<rect x='440' y='320' width='102' height='102' fill='#d7e4dc' stroke='#19383d' stroke-width='1'/>
+<text x='491.0' y='368' font-size='28' text-anchor='middle'>61</text>
+<rect x='440' y='430' width='102' height='102' fill='#d7e4dc' stroke='#19383d' stroke-width='1'/>
+<text x='491.0' y='478' font-size='28' text-anchor='middle'>61</text>
+</g>
+</svg>
