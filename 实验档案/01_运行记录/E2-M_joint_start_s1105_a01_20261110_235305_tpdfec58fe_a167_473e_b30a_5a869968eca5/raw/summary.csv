@@ -1,0 +1,3 @@
+name,candidateErrors,disagreements,became_wrong,became_correct,llrMax,saturations,e0,e10,e20,e30,worstCase,worstLlr
+mild,247,13,2,11,0.79505964,33190,181,61,5,0,42,0.79505964
+joint_W21,247,13,2,11,0.79505964,33097,181,61,5,0,42,0.79505964

@@ -1,0 +1,2 @@
+边 raw。不量化时开 trace 与关 trace 的最大 LLR 差 0。
+最窄档开 trace 与关 trace 的最大 LLR 差 0，硬判不同帧数 0。
