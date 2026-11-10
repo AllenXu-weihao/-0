@@ -1,0 +1,2 @@
+10 dB case 541。最小 case_index 的 10 dB 翻转帧：任一候选相对 float 硬判不同，或 W21_19_17 与 W21_21_21 硬判不同。
+0 dB case 1。0 dB 上 W15_15_15 相对 float 有硬判差、两个宽配置没有的最小 case_index。

@@ -1,0 +1,6 @@
+snr,frames,bits,hard_differences,frames_with_hard_difference,max_abs_llr
+0,512,12288,0,0,0
+10,512,12288,0,0,0
+20,512,12288,0,0,0
+30,512,12288,0,0,0
+-1,2048,49152,0,0,0

@@ -1,0 +1,6 @@
+make_cases(512,271111)
+frames 2048
+per SNR 512
+bits per SNR 12288
+sha256 a8b8ed324fbf2bb1be9ff52efd7cbdacc277c99867ae38ee9797c0bcccdfe7e4
+seed 271111 was not a historical result seed at protocol time.

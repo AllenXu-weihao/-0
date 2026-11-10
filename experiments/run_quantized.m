@@ -8,6 +8,7 @@ previous=MIMO_EXPERIMENT;c=onCleanup(@()restore(previous)); %#ok<NASGU>
 ex=struct('formats',formats,'stats',struct());
 if isfield(opts,'orderedObserve'),ex.orderedObserve=logical(opts.orderedObserve);end
 if isfield(opts,'logEdges'),ex.logEdges=opts.logEdges;end
+if isfield(opts,'recordSaturation'),ex.recordSaturation=logical(opts.recordSaturation);end
 if isfield(opts,'trace') && logical(opts.trace)
  ex.trace=struct('enabled',true);
  ex.traceLog=struct();

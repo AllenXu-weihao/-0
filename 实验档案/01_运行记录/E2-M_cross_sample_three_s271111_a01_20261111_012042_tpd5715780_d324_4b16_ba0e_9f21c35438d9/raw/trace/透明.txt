@@ -1,0 +1,8 @@
+case 541 float trace LLR gap 0 hard diffs 0
+case 541 W15_15_15 trace versus stored LLR gap 0 hard diffs 0
+case 541 W21_19_17 trace versus stored LLR gap 0 hard diffs 0
+case 541 W21_21_21 trace versus stored LLR gap 0 hard diffs 0
+case 1 float trace LLR gap 0 hard diffs 0
+case 1 W15_15_15 trace versus stored LLR gap 0 hard diffs 0
+case 1 W21_19_17 trace versus stored LLR gap 0 hard diffs 0
+case 1 W21_21_21 trace versus stored LLR gap 0 hard diffs 0
