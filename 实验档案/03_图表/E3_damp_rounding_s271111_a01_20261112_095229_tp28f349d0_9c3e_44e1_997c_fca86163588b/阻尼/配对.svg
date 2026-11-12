@@ -1,0 +1,195 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns='http://www.w3.org/2000/svg' width='1100' height='980' viewBox='0 0 1100 980'>
+<title>阻尼舍入 A 与 B 的配对差</title>
+<rect width='1100' height='980' fill='white'/>
+<g font-family='Microsoft YaHei, sans-serif' fill='#19383d'>
+<text x='32' y='34' font-size='24'>阻尼舍入：B 相对 A 的配对差</text>
+<text x='32' y='58' font-size='14'>每个向量的差是（B 错数−A 错数）/24。竖线是 10000 次配对 bootstrap 的 2.5% 到 97.5%，分析种子 271113。实心柱是对变错，浅色柱是错变对。</text>
+<text x='32' y='92' font-size='16'>B−A 的平均 ΔBER</text>
+<line x1='88' y1='128' x2='88' y2='310' stroke='#19383d'/>
+<line x1='88' y1='226.7' x2='532' y2='226.7' stroke='#a7b6b3'/>
+<text x='80' y='230.7' font-size='12' text-anchor='end'>0</text>
+<text x='143' y='332' font-size='13' text-anchor='middle'>0 dB</text>
+<line x1='134.0' y1='292.4' x2='134.0' y2='145.6' stroke='#ae532e'/>
+<circle cx='134.0' cy='219.0' r='4.5' fill='#ae532e'/>
+<line x1='152.0' y1='280.8' x2='152.0' y2='149.5' stroke='#426d9f'/>
+<circle cx='152.0' cy='215.1' r='4.5' fill='#426d9f'/>
+<text x='251' y='332' font-size='13' text-anchor='middle'>10 dB</text>
+<line x1='242.0' y1='249.9' x2='242.0' y2='203.6' stroke='#ae532e'/>
+<circle cx='242.0' cy='226.7' r='4.5' fill='#ae532e'/>
+<line x1='260.0' y1='238.3' x2='260.0' y2='195.8' stroke='#426d9f'/>
+<circle cx='260.0' cy='219.0' r='4.5' fill='#426d9f'/>
+<text x='359' y='332' font-size='13' text-anchor='middle'>20 dB</text>
+<line x1='350.0' y1='226.7' x2='350.0' y2='226.7' stroke='#ae532e'/>
+<circle cx='350.0' cy='226.7' r='4.5' fill='#ae532e'/>
+<line x1='368.0' y1='226.7' x2='368.0' y2='226.7' stroke='#426d9f'/>
+<circle cx='368.0' cy='226.7' r='4.5' fill='#426d9f'/>
+<text x='467' y='332' font-size='13' text-anchor='middle'>30 dB</text>
+<line x1='458.0' y1='226.7' x2='458.0' y2='226.7' stroke='#ae532e'/>
+<circle cx='458.0' cy='226.7' r='4.5' fill='#ae532e'/>
+<line x1='476.0' y1='226.7' x2='476.0' y2='226.7' stroke='#426d9f'/>
+<circle cx='476.0' cy='226.7' r='4.5' fill='#426d9f'/>
+<text x='560' y='92' font-size='16'>对变错（上）与错变对（下）</text>
+<text x='671' y='332' font-size='13' text-anchor='middle'>0 dB</text>
+<rect x='656.0' y='37.0' width='12' height='182.0' fill='#ae532e'/>
+<rect x='656.0' y='219.0' width='12' height='175.3' fill='#ae532e' opacity='0.45'/>
+<rect x='674.0' y='101.0' width='12' height='118.0' fill='#426d9f'/>
+<rect x='674.0' y='219.0' width='12' height='107.9' fill='#426d9f' opacity='0.45'/>
+<text x='779' y='332' font-size='13' text-anchor='middle'>10 dB</text>
+<rect x='764.0' y='202.1' width='12' height='16.9' fill='#ae532e'/>
+<rect x='764.0' y='219.0' width='12' height='16.9' fill='#ae532e' opacity='0.45'/>
+<rect x='782.0' y='195.4' width='12' height='23.6' fill='#426d9f'/>
+<rect x='782.0' y='219.0' width='12' height='16.9' fill='#426d9f' opacity='0.45'/>
+<text x='887' y='332' font-size='13' text-anchor='middle'>20 dB</text>
+<rect x='872.0' y='219.0' width='12' height='0.0' fill='#ae532e'/>
+<rect x='872.0' y='219.0' width='12' height='0.0' fill='#ae532e' opacity='0.45'/>
+<rect x='890.0' y='219.0' width='12' height='0.0' fill='#426d9f'/>
+<rect x='890.0' y='219.0' width='12' height='0.0' fill='#426d9f' opacity='0.45'/>
+<text x='995' y='332' font-size='13' text-anchor='middle'>30 dB</text>
+<rect x='980.0' y='219.0' width='12' height='0.0' fill='#ae532e'/>
+<rect x='980.0' y='219.0' width='12' height='0.0' fill='#ae532e' opacity='0.45'/>
+<rect x='998.0' y='219.0' width='12' height='0.0' fill='#426d9f'/>
+<rect x='998.0' y='219.0' width='12' height='0.0' fill='#426d9f' opacity='0.45'/>
+<text x='32' y='390' font-size='16'>A 相对 float、B 相对 float 的平均 ΔBER</text>
+<text x='32' y='414' font-size='14'>左为 A−float，右为 B−float。同一分析种子的后续随机流。</text>
+<line x1='88' y1='448' x2='88' y2='630' stroke='#19383d'/>
+<line x1='88' y1='540.5' x2='532' y2='540.5' stroke='#a7b6b3'/>
+<text x='80' y='544.5' font-size='12' text-anchor='end'>0</text>
+<text x='143' y='652' font-size='13' text-anchor='middle'>0 dB</text>
+<line x1='134.0' y1='612.4' x2='134.0' y2='465.6' stroke='#ae532e'/>
+<circle cx='134.0' cy='539.5' r='4.5' fill='#ae532e'/>
+<line x1='152.0' y1='564.1' x2='152.0' y2='473.8' stroke='#426d9f'/>
+<circle cx='152.0' cy='518.0' r='4.5' fill='#426d9f'/>
+<text x='251' y='652' font-size='13' text-anchor='middle'>10 dB</text>
+<line x1='242.0' y1='562.1' x2='242.0' y2='536.4' stroke='#ae532e'/>
+<circle cx='242.0' cy='548.8' r='4.5' fill='#ae532e'/>
+<line x1='260.0' y1='552.9' x2='260.0' y2='530.3' stroke='#426d9f'/>
+<circle cx='260.0' cy='541.6' r='4.5' fill='#426d9f'/>
+<text x='359' y='652' font-size='13' text-anchor='middle'>20 dB</text>
+<line x1='350.0' y1='546.7' x2='350.0' y2='535.4' stroke='#ae532e'/>
+<circle cx='350.0' cy='540.5' r='4.5' fill='#ae532e'/>
+<line x1='368.0' y1='545.7' x2='368.0' y2='536.4' stroke='#426d9f'/>
+<circle cx='368.0' cy='540.5' r='4.5' fill='#426d9f'/>
+<text x='467' y='652' font-size='13' text-anchor='middle'>30 dB</text>
+<line x1='458.0' y1='540.5' x2='458.0' y2='540.5' stroke='#ae532e'/>
+<circle cx='458.0' cy='540.5' r='4.5' fill='#ae532e'/>
+<line x1='476.0' y1='540.5' x2='476.0' y2='540.5' stroke='#426d9f'/>
+<circle cx='476.0' cy='540.5' r='4.5' fill='#426d9f'/>
+<line x1='616' y1='448' x2='616' y2='630' stroke='#19383d'/>
+<line x1='616' y1='541.0' x2='1060' y2='541.0' stroke='#a7b6b3'/>
+<text x='608' y='545.0' font-size='12' text-anchor='end'>0</text>
+<text x='671' y='652' font-size='13' text-anchor='middle'>0 dB</text>
+<line x1='662.0' y1='612.4' x2='662.0' y2='465.6' stroke='#ae532e'/>
+<circle cx='662.0' cy='538.0' r='4.5' fill='#ae532e'/>
+<line x1='680.0' y1='561.1' x2='680.0' y2='471.6' stroke='#426d9f'/>
+<circle cx='680.0' cy='515.9' r='4.5' fill='#426d9f'/>
+<text x='779' y='652' font-size='13' text-anchor='middle'>10 dB</text>
+<line x1='770.0' y1='563.1' x2='770.0' y2='536.0' stroke='#ae532e'/>
+<circle cx='770.0' cy='549.1' r='4.5' fill='#ae532e'/>
+<line x1='788.0' y1='551.1' x2='788.0' y2='530.0' stroke='#426d9f'/>
+<circle cx='788.0' cy='540.0' r='4.5' fill='#426d9f'/>
+<text x='887' y='652' font-size='13' text-anchor='middle'>20 dB</text>
+<line x1='878.0' y1='547.0' x2='878.0' y2='536.0' stroke='#ae532e'/>
+<circle cx='878.0' cy='541.0' r='4.5' fill='#ae532e'/>
+<line x1='896.0' y1='546.0' x2='896.0' y2='537.0' stroke='#426d9f'/>
+<circle cx='896.0' cy='541.0' r='4.5' fill='#426d9f'/>
+<text x='995' y='652' font-size='13' text-anchor='middle'>30 dB</text>
+<line x1='986.0' y1='541.0' x2='986.0' y2='541.0' stroke='#ae532e'/>
+<circle cx='986.0' cy='541.0' r='4.5' fill='#ae532e'/>
+<line x1='1004.0' y1='541.0' x2='1004.0' y2='541.0' stroke='#426d9f'/>
+<circle cx='1004.0' cy='541.0' r='4.5' fill='#426d9f'/>
+<text x='32' y='700' font-size='16'>同一条 A 轨迹上的局部差，以及完整回放的口序差</text>
+<text x='80' y='726' font-size='15'>和差</text>
+<rect x='102.5' y='960.0' width='5' height='0.0' fill='#ae532e' opacity='0.70'/>
+<rect x='108.5' y='960.0' width='5' height='0.0' fill='#426d9f' opacity='0.70'/>
+<text x='124' y='980' font-size='12' text-anchor='middle'>0</text>
+<rect x='118.5' y='769.1' width='5' height='190.9' fill='#ae532e' opacity='0.95'/>
+<rect x='124.5' y='767.5' width='5' height='192.5' fill='#426d9f' opacity='0.95'/>
+<rect x='134.5' y='746.9' width='5' height='213.1' fill='#ae532e' opacity='1.20'/>
+<rect x='140.5' y='746.2' width='5' height='213.8' fill='#426d9f' opacity='1.20'/>
+<rect x='180.5' y='960.0' width='5' height='0.0' fill='#ae532e' opacity='0.70'/>
+<rect x='186.5' y='960.0' width='5' height='0.0' fill='#426d9f' opacity='0.70'/>
+<text x='202' y='980' font-size='12' text-anchor='middle'>10</text>
+<rect x='196.5' y='753.4' width='5' height='206.6' fill='#ae532e' opacity='0.95'/>
+<rect x='202.5' y='751.6' width='5' height='208.4' fill='#426d9f' opacity='0.95'/>
+<rect x='212.5' y='747.9' width='5' height='212.1' fill='#ae532e' opacity='1.20'/>
+<rect x='218.5' y='750.1' width='5' height='209.9' fill='#426d9f' opacity='1.20'/>
+<rect x='258.5' y='960.0' width='5' height='0.0' fill='#ae532e' opacity='0.70'/>
+<rect x='264.5' y='960.0' width='5' height='0.0' fill='#426d9f' opacity='0.70'/>
+<text x='280' y='980' font-size='12' text-anchor='middle'>20</text>
+<rect x='274.5' y='753.3' width='5' height='206.7' fill='#ae532e' opacity='0.95'/>
+<rect x='280.5' y='752.1' width='5' height='207.9' fill='#426d9f' opacity='0.95'/>
+<rect x='290.5' y='746.8' width='5' height='213.2' fill='#ae532e' opacity='1.20'/>
+<rect x='296.5' y='748.4' width='5' height='211.6' fill='#426d9f' opacity='1.20'/>
+<rect x='336.5' y='960.0' width='5' height='0.0' fill='#ae532e' opacity='0.70'/>
+<rect x='342.5' y='960.0' width='5' height='0.0' fill='#426d9f' opacity='0.70'/>
+<text x='358' y='980' font-size='12' text-anchor='middle'>30</text>
+<rect x='352.5' y='748.0' width='5' height='212.0' fill='#ae532e' opacity='0.95'/>
+<rect x='358.5' y='749.0' width='5' height='211.0' fill='#426d9f' opacity='0.95'/>
+<rect x='368.5' y='759.9' width='5' height='200.1' fill='#ae532e' opacity='1.20'/>
+<rect x='374.5' y='746.0' width='5' height='214.0' fill='#426d9f' opacity='1.20'/>
+<text x='420' y='726' font-size='15'>写回差</text>
+<rect x='442.5' y='960.0' width='5' height='0.0' fill='#ae532e' opacity='0.70'/>
+<rect x='448.5' y='960.0' width='5' height='0.0' fill='#426d9f' opacity='0.70'/>
+<text x='464' y='980' font-size='12' text-anchor='middle'>0</text>
+<rect x='458.5' y='912.9' width='5' height='47.1' fill='#ae532e' opacity='0.95'/>
+<rect x='464.5' y='767.5' width='5' height='192.5' fill='#426d9f' opacity='0.95'/>
+<rect x='474.5' y='905.3' width='5' height='54.7' fill='#ae532e' opacity='1.20'/>
+<rect x='480.5' y='746.2' width='5' height='213.8' fill='#426d9f' opacity='1.20'/>
+<rect x='520.5' y='960.0' width='5' height='0.0' fill='#ae532e' opacity='0.70'/>
+<rect x='526.5' y='960.0' width='5' height='0.0' fill='#426d9f' opacity='0.70'/>
+<text x='542' y='980' font-size='12' text-anchor='middle'>10</text>
+<rect x='536.5' y='908.1' width='5' height='51.9' fill='#ae532e' opacity='0.95'/>
+<rect x='542.5' y='751.6' width='5' height='208.4' fill='#426d9f' opacity='0.95'/>
+<rect x='552.5' y='904.4' width='5' height='55.6' fill='#ae532e' opacity='1.20'/>
+<rect x='558.5' y='750.1' width='5' height='209.9' fill='#426d9f' opacity='1.20'/>
+<rect x='598.5' y='960.0' width='5' height='0.0' fill='#ae532e' opacity='0.70'/>
+<rect x='604.5' y='960.0' width='5' height='0.0' fill='#426d9f' opacity='0.70'/>
+<text x='620' y='980' font-size='12' text-anchor='middle'>20</text>
+<rect x='614.5' y='908.8' width='5' height='51.2' fill='#ae532e' opacity='0.95'/>
+<rect x='620.5' y='752.1' width='5' height='207.9' fill='#426d9f' opacity='0.95'/>
+<rect x='630.5' y='906.8' width='5' height='53.2' fill='#ae532e' opacity='1.20'/>
+<rect x='636.5' y='748.4' width='5' height='211.6' fill='#426d9f' opacity='1.20'/>
+<rect x='676.5' y='960.0' width='5' height='0.0' fill='#ae532e' opacity='0.70'/>
+<rect x='682.5' y='960.0' width='5' height='0.0' fill='#426d9f' opacity='0.70'/>
+<text x='698' y='980' font-size='12' text-anchor='middle'>30</text>
+<rect x='692.5' y='906.8' width='5' height='53.2' fill='#ae532e' opacity='0.95'/>
+<rect x='698.5' y='749.0' width='5' height='211.0' fill='#426d9f' opacity='0.95'/>
+<rect x='708.5' y='910.6' width='5' height='49.4' fill='#ae532e' opacity='1.20'/>
+<rect x='714.5' y='746.0' width='5' height='214.0' fill='#426d9f' opacity='1.20'/>
+<text x='760' y='726' font-size='15'>口序差</text>
+<rect x='782.5' y='960.0' width='5' height='0.0' fill='#ae532e' opacity='0.70'/>
+<rect x='788.5' y='960.0' width='5' height='0.0' fill='#426d9f' opacity='0.70'/>
+<text x='804' y='980' font-size='12' text-anchor='middle'>0</text>
+<rect x='798.5' y='960.0' width='5' height='0.0' fill='#ae532e' opacity='0.95'/>
+<rect x='804.5' y='960.0' width='5' height='0.0' fill='#426d9f' opacity='0.95'/>
+<rect x='814.5' y='746.0' width='5' height='214.0' fill='#ae532e' opacity='1.20'/>
+<rect x='820.5' y='840.7' width='5' height='119.3' fill='#426d9f' opacity='1.20'/>
+<rect x='860.5' y='960.0' width='5' height='0.0' fill='#ae532e' opacity='0.70'/>
+<rect x='866.5' y='960.0' width='5' height='0.0' fill='#426d9f' opacity='0.70'/>
+<text x='882' y='980' font-size='12' text-anchor='middle'>10</text>
+<rect x='876.5' y='960.0' width='5' height='0.0' fill='#ae532e' opacity='0.95'/>
+<rect x='882.5' y='960.0' width='5' height='0.0' fill='#426d9f' opacity='0.95'/>
+<rect x='892.5' y='888.2' width='5' height='71.8' fill='#ae532e' opacity='1.20'/>
+<rect x='898.5' y='916.2' width='5' height='43.8' fill='#426d9f' opacity='1.20'/>
+<rect x='938.5' y='960.0' width='5' height='0.0' fill='#ae532e' opacity='0.70'/>
+<rect x='944.5' y='960.0' width='5' height='0.0' fill='#426d9f' opacity='0.70'/>
+<text x='960' y='980' font-size='12' text-anchor='middle'>20</text>
+<rect x='954.5' y='960.0' width='5' height='0.0' fill='#ae532e' opacity='0.95'/>
+<rect x='960.5' y='960.0' width='5' height='0.0' fill='#426d9f' opacity='0.95'/>
+<rect x='970.5' y='946.5' width='5' height='13.5' fill='#ae532e' opacity='1.20'/>
+<rect x='976.5' y='955.5' width='5' height='4.5' fill='#426d9f' opacity='1.20'/>
+<rect x='1016.5' y='960.0' width='5' height='0.0' fill='#ae532e' opacity='0.70'/>
+<rect x='1022.5' y='960.0' width='5' height='0.0' fill='#426d9f' opacity='0.70'/>
+<text x='1038' y='980' font-size='12' text-anchor='middle'>30</text>
+<rect x='1032.5' y='960.0' width='5' height='0.0' fill='#ae532e' opacity='0.95'/>
+<rect x='1038.5' y='960.0' width='5' height='0.0' fill='#426d9f' opacity='0.95'/>
+<rect x='1048.5' y='947.7' width='5' height='12.3' fill='#ae532e' opacity='1.20'/>
+<rect x='1054.5' y='953.6' width='5' height='6.4' fill='#426d9f' opacity='1.20'/>
+<text x='32' y='1002' font-size='12'>每一档三根柱从左到右是第 1、2、3 轮。和差与写回差的分母是 512×180，口序差的分母是 512×20。</text>
+<rect x='32' y='948' width='14' height='14' fill='#ae532e'/>
+<text x='52' y='960' font-size='13'>15/15/15</text>
+<rect x='172' y='948' width='14' height='14' fill='#426d9f'/>
+<text x='192' y='960' font-size='13'>21/19/17</text>
+</g>
+</svg>

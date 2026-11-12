@@ -159,7 +159,13 @@ for b=1:B
   for j=1:P,raw(j,idx(j,:))=score(j,:);end
   raw=raw-max(raw,[],2);raw=reshape(raw.',1,[]);
   if strcmp(task,'mimo'),raw=raw*cfg.mimoBetaScale;end
-  raw=qedge('raw',raw);rate=qedge('rate',p.runtime.rate);betaBefore=beta;d0=qedge('damp_product_old',(1-rate)*beta);d1=qedge('damp_product_new',rate*raw);beta=qedge('beta',qedge('damp_sum',d0+d1));
+  raw=qedge('raw',raw);rate=qedge('rate',p.runtime.rate);betaBefore=beta;
+  if damp_is_b()
+   beta=damp_path_b(raw,betaBefore);
+  else
+   d0=qedge('damp_product_old',(1-rate)*beta);d1=qedge('damp_product_new',rate*raw);beta=qedge('beta',qedge('damp_sum',d0+d1));
+  end
+  if damp_wants_audit(),damp_audit_round(t,raw,betaBefore,beta,idx,rate);end
   if tracing(),[~,idxPre]=sort(alphaPre,2,'descend');trace_iter(t,alphaPre,alpha,idxPre,idx,raw,betaBefore,beta);end
   bi=beta;li=local;
   if strcmp(task,'mimo'),bi=bi*cfg.mimoPosteriorBetaScale;li=li*cfg.mimoPosteriorPriorScale;end
@@ -320,6 +326,60 @@ function n=adjacent_ties(values,idx)
 sorted=zeros(size(values));
 for j=1:size(values,1),sorted(j,:)=values(j,idx(j,:));end
 n=sum(sorted(:,1:end-1)==sorted(:,2:end),2);
+end
+function tf=damp_is_b()
+global MIMO_EXPERIMENT
+tf=isstruct(MIMO_EXPERIMENT) && isfield(MIMO_EXPERIMENT,'dampMode') && strcmp(MIMO_EXPERIMENT.dampMode,'B');
+end
+function tf=damp_wants_audit()
+global MIMO_EXPERIMENT
+tf=isstruct(MIMO_EXPERIMENT) && isfield(MIMO_EXPERIMENT,'dampAudit') && logical(MIMO_EXPERIMENT.dampAudit);
+end
+function beta=damp_path_b(raw,betaOld)
+global MIMO_EXPERIMENT
+fmt=MIMO_EXPERIMENT.formats;
+rec=damp_codes(round(raw*2^fmt.raw.F),round(betaOld*2^fmt.beta.F),fmt.raw.F,fmt.beta.F,fmt.beta.W);
+beta=qedge('beta',rec.sumB/1024);
+MIMO_EXPERIMENT.dampStep=rec;
+end
+function damp_audit_round(roundIndex,raw,betaOld,beta,idx,rate)
+global MIMO_EXPERIMENT
+fmt=MIMO_EXPERIMENT.formats;
+rawCode=round(raw*2^fmt.raw.F);betaCode=round(betaOld*2^fmt.beta.F);
+rec=damp_codes(rawCode,betaCode,fmt.raw.F,fmt.beta.F,fmt.beta.W);
+live=round(beta*2^fmt.beta.F);
+expect=rec.betaA;
+if damp_is_b(),expect=rec.betaB;end
+if any(live~=expect)
+ error('Damp integer mismatch at round %d',roundIndex);
+end
+blank=struct('localSumDiff',0,'localBetaDiff',0,'midSat',0,'sumSatA',0,'sumSatB',0,'writeSat',0,'idx',idx,'firstSum',0,'sumA',0,'sumB',0,'rawCode',0,'betaCode',0,'firstBeta',0,'betaA',0,'betaB',0);
+if ~isfield(MIMO_EXPERIMENT,'dampAuditLog') || ~isfield(MIMO_EXPERIMENT.dampAuditLog,'round')
+ MIMO_EXPERIMENT.dampAuditLog.round=repmat(blank,1,3);
+ MIMO_EXPERIMENT.dampAuditLog.rateCode=round(rate*1024);
+end
+slot=blank;
+slot.localSumDiff=nnz(rec.sumA~=rec.sumB);
+slot.localBetaDiff=nnz(rec.betaA~=rec.betaB);
+slot.midSat=nnz(rec.midSat);
+slot.sumSatA=nnz(rec.sumSatA);
+slot.sumSatB=nnz(rec.sumSatB);
+slot.writeSat=nnz(rec.writeSatA);
+if damp_is_b(),slot.writeSat=nnz(rec.writeSatB);end
+slot.idx=idx;
+if slot.localSumDiff>0
+ at=find(rec.sumA~=rec.sumB,1);
+ slot.firstSum=at;slot.sumA=rec.sumA(at);slot.sumB=rec.sumB(at);
+ slot.rawCode=rawCode(at);slot.betaCode=betaCode(at);
+end
+if slot.localBetaDiff>0
+ at=find(rec.betaA~=rec.betaB,1);
+ slot.firstBeta=at;slot.betaA=rec.betaA(at);slot.betaB=rec.betaB(at);
+ if slot.firstSum==0
+  slot.rawCode=rawCode(at);slot.betaCode=betaCode(at);
+ end
+end
+MIMO_EXPERIMENT.dampAuditLog.round(roundIndex)=slot;
 end
 function n=new_equal_pairs(pre,post)
 n=zeros(size(pre,1),1);
